@@ -79,16 +79,78 @@ type ProductRead struct {
 	Weight    int
 }
 
+type ProductReadOne struct {
+	ID        uint
+	Name      string
+	Desc      string
+	Category  model.CategoryRead
+	Image     string
+	Available int
+	Price     int
+	Weight    int
+	Review    []ReviewBodyRead
+}
+type ReviewBodyRead struct {
+	UserID  int
+	Name    string
+	Comment string
+	Rating  int
+}
+
 func ReadOneProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product model.Product
-	query := db.Conn.Preload("Images").Preload("Category").Find(&product, id)
+	var reviews []model.Review
+	query := db.Conn.Preload("Category").Find(&product, id)
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+	query2 := db.Conn.Preload("User").Find(&reviews, "product_id", id)
+	if err := query2.Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "product Read Success", "product": product})
+	// var result []ProductReadOne
+	// result = append(result, ProductReadOne{
+	// 	ID:        product.ID,
+	// 	Name:      product.Name,
+	// 	Desc:      product.Desc,
+	// 	Available: product.Available,
+	// 	Price:     product.Price,
+	// 	Weight:    product.Weight,
+	// 	Category: model.CategoryRead{
+	// 		ID:   product.Category.ID,
+	// 		Name: product.Category.Name,
+	// 	},
+
+	// })
+
+	result := ProductReadOne{
+		ID:        product.ID,
+		Name:      product.Name,
+		Desc:      product.Desc,
+		Available: product.Available,
+		Image:     product.Image,
+		Price:     product.Price,
+		Weight:    product.Weight,
+		Category: model.CategoryRead{
+			ID:   product.Category.ID,
+			Name: product.Category.Name,
+		},
+	}
+	var rv []ReviewBodyRead
+	for _, r := range reviews {
+		rv = append(rv, ReviewBodyRead{
+			UserID:  r.UserID,
+			Name:    r.User.UserName,
+			Comment: r.Comment,
+			Rating:  r.Rating,
+		})
+	}
+	result.Review = rv
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "product Read Success", "product": result})
 }
 
 func ReadProductAllMyStore(c *gin.Context) {

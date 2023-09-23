@@ -27,7 +27,7 @@ func DeleteStore(c *gin.Context) {
 		return
 	} else {
 		db.Conn.Delete(&user).Where("id =?", json.Id)
-		c.JSON(http.StatusOK, gin.H{"message": "Delete user ?"})
+		c.JSON(http.StatusOK, gin.H{"message": "Delete store ?"})
 		return
 	}
 }
@@ -41,7 +41,6 @@ type StoreUpdate struct {
 	SubDistrict   string `form:"subdistrict"`
 	Province      string `form:"province"`
 	Zipcode       string `form:"zipcode"`
-	Shipment      string `form:"shipmentname[]"`
 	AccountNumber string `form:"account_number"`
 	AccountName   string `form:"account_name"`
 	Bank          string `form:"bank"`

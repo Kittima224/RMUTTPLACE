@@ -4,8 +4,7 @@ import "gorm.io/gorm"
 
 type Product struct {
 	gorm.Model
-	StoreId int
-	// Images     []PhotoProduct `gorm:"foreignKey:ProductID"`
+	StoreId    int
 	Image      string
 	Name       string
 	Desc       string
@@ -14,11 +13,14 @@ type Product struct {
 	Price      int
 	Weight     int
 	Category   Category
+	Reviews    []Review `gorm:"foreignKey:ProductID"`
 }
 
-// type PhotoProduct struct {
-// 	gorm.Model
-// 	StoreID   uint
-// 	ProductID uint
-// 	Image     string
-// }
+type Review struct {
+	gorm.Model
+	ProductID int
+	UserID    int
+	User      User `gorm:"foreignKey:UserID"`
+	Comment   string
+	Rating    int
+}

@@ -26,6 +26,7 @@ func Migrate() {
 		&model.User{},
 		&model.Store{},
 		&model.Product{},
+		&model.Review{},
 		// &model.PhotoProduct{},
 		&model.Shipment{},
 		&model.Cart{},

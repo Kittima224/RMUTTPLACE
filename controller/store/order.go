@@ -36,11 +36,6 @@ func UpdateOrder(c *gin.Context) {
 func GetOrderAll(c *gin.Context) {
 	storeId := c.MustGet("storeId").(float64)
 	var order []model.Order
-	// var json OrderUpdateBody
-	// if err := c.ShouldBind(&json); err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	// 	return
-	// }
 	if err := db.Conn.Find(&order, "store_id = ? ", storeId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

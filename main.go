@@ -75,6 +75,8 @@ func main() {
 	user.POST("/fav", UserController.AddUnFav)
 	user.GET("/fav", UserController.MyFav)
 
+	user.POST("/product/review/:id", UserController.CreateReview)
+
 	store := r.Group("/stores", middleware.JWTAuthenStore())
 	store.GET("/readall", StoreController.ReadAll)
 	store.GET("/profile", StoreController.Profile)
