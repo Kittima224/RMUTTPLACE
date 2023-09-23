@@ -88,7 +88,7 @@ type ProductReadOne struct {
 	Available int
 	Price     int
 	Weight    int
-	Review    []ReviewBodyRead
+	Reviews   []ReviewBodyRead
 }
 type ReviewBodyRead struct {
 	UserID  int
@@ -111,22 +111,6 @@ func ReadOneProduct(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-
-	// var result []ProductReadOne
-	// result = append(result, ProductReadOne{
-	// 	ID:        product.ID,
-	// 	Name:      product.Name,
-	// 	Desc:      product.Desc,
-	// 	Available: product.Available,
-	// 	Price:     product.Price,
-	// 	Weight:    product.Weight,
-	// 	Category: model.CategoryRead{
-	// 		ID:   product.Category.ID,
-	// 		Name: product.Category.Name,
-	// 	},
-
-	// })
-
 	result := ProductReadOne{
 		ID:        product.ID,
 		Name:      product.Name,
@@ -149,7 +133,7 @@ func ReadOneProduct(c *gin.Context) {
 			Rating:  r.Rating,
 		})
 	}
-	result.Review = rv
+	result.Reviews = rv
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "product Read Success", "product": result})
 }
 
