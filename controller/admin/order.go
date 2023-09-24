@@ -10,10 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type AddTrackingOrderRead struct {
+type OrderReadAll struct {
 	ID           uint
 	UserID       uint
-	StoreID      uint
 	ShipmentID   uint
 	ShipmentName string
 	Tracking     string
@@ -25,12 +24,11 @@ func GetOrderAll(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	var result []AddTrackingOrderRead
+	var result []OrderReadAll
 	for _, order := range orders {
-		result = append(result, AddTrackingOrderRead{
+		result = append(result, OrderReadAll{
 			ID:           order.ID,
 			UserID:       order.UserID,
-			StoreID:      order.StoreID,
 			ShipmentID:   uint(order.ShipmentID),
 			ShipmentName: order.Shipment.Name,
 			Tracking:     order.Tracking,
@@ -39,15 +37,69 @@ func GetOrderAll(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+type OrderReadOne struct {
+	ID       uint
+	Store    model.StoreRead
+	Products []OrderItemRead
+}
+
+// type OrderItemRead struct {
+// 	Image    string
+// 	Name     string
+// 	Quantity int
+// 	Price    int
+// }
+
+type OrderItemRead struct {
+	ProductID uint
+	Image     string
+	Price     int
+	Quantity  int
+}
+
 func GetOrderOne(c *gin.Context) {
 	id := c.Param("id")
-	var order []model.Order
-	var orderItem []model.OrderItem
-	if err := db.Conn.Find(&order, " id=?", id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	var order model.Order
+	var orderItems []model.OrderItem
+	query := db.Conn.Preload("Store").Find(&order, id)
+	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	for _, orders := range order {
+	query2 := db.Conn.Preload("Product").Find(&orderItems, "order_id", id)
+	if err := query2.Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	result := OrderReadOne{
+		ID: order.ID,
+		Store: model.StoreRead{
+			ID:   order.Store.ID,
+			Name: order.Store.NameStore,
+		},
+	}
+	var ot []OrderItemRead
+	for _, o := range orderItems {
+		ot = append(ot, OrderItemRead{
+			ProductID: o.Product.ID,
+			Image:     o.Product.Image,
+			Price:     o.Product.Price,
+			Quantity:  o.Quantity,
+		})
+	}
+	result.Products = ot
+	c.JSON(http.StatusOK, result)
+}
+
+func GetOrderOne1(c *gin.Context) {
+	id := c.Param("id")
+	var orders []model.Order
+	var orderItem []model.OrderItem
+	if err := db.Conn.Preload("Store").Find(&orders, " id=?", id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	for _, orders := range orders {
 		var ot []model.OrderItem
 		query := db.Conn.Preload("Product").Find(&ot, "order_id=?", orders.ID)
 		if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
@@ -58,5 +110,4 @@ func GetOrderOne(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, orderItem)
-
 }

@@ -36,7 +36,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	product := model.Product{Name: json.Name, Desc: json.Desc, StoreId: int(storeId),
+	product := model.Product{Name: json.Name, Desc: json.Desc, StoreID: int(storeId),
 		CategoryID: json.CategoryID,
 		Available:  json.Available, Price: json.Price,
 		Weight: json.Weight}

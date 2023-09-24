@@ -84,6 +84,7 @@ type ProductReadOne struct {
 	Name      string
 	Desc      string
 	Category  model.CategoryRead
+	Store     model.StoreRead
 	Image     string
 	Available int
 	Price     int
@@ -101,7 +102,7 @@ func ReadOneProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product model.Product
 	var reviews []model.Review
-	query := db.Conn.Preload("Category").Find(&product, id)
+	query := db.Conn.Preload("Store").Preload("Category").Find(&product, id)
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -122,6 +123,10 @@ func ReadOneProduct(c *gin.Context) {
 		Category: model.CategoryRead{
 			ID:   product.Category.ID,
 			Name: product.Category.Name,
+		},
+		Store: model.StoreRead{
+			ID:   product.Store.ID,
+			Name: product.Store.NameStore,
 		},
 	}
 	var rv []ReviewBodyRead

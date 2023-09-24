@@ -4,7 +4,8 @@ import "gorm.io/gorm"
 
 type Product struct {
 	gorm.Model
-	StoreId    int
+	StoreID    int
+	Store      Store
 	Image      string
 	Name       string
 	Desc       string

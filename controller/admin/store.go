@@ -77,7 +77,7 @@ func UpdateStore(c *gin.Context) {
 		Province: json.Province, Zipcode: json.Zipcode,
 		AccountNumber: json.AccountNumber, AccountName: json.AccountName, Bank: json.Bank})
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "update user", "store": store})
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "update store", "store": store})
 
 }
 

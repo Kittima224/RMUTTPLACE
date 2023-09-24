@@ -8,6 +8,7 @@ type Order struct {
 	Products   []OrderItem `gorm:"foreignKey:OrderID"`
 	Tracking   string
 	StoreID    uint
+	Store      Store
 	ShipmentID uint
 	Shipment   Shipment
 }
