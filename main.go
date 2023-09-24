@@ -92,7 +92,7 @@ func main() {
 
 	store.GET("/orders", StoreController.GetOrderAll)
 	store.GET("/order/:id", StoreController.GetOrderOne)
-	store.PATCH("/order/:id", StoreController.UpdateOrder)
+	store.PATCH("/order/:id", StoreController.AddTrackingOrder)
 
 	//admin //admin //admin //admin //admin //admin //admin
 	r.GET("/admin/stores", AdminController.ReadAllStore)

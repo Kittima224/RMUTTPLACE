@@ -10,13 +10,33 @@ import (
 	"gorm.io/gorm"
 )
 
+type AddTrackingOrderRead struct {
+	ID           uint
+	UserID       uint
+	StoreID      uint
+	ShipmentID   uint
+	ShipmentName string
+	Tracking     string
+}
+
 func GetOrderAll(c *gin.Context) {
-	var order []model.Order
-	if err := db.Conn.Find(&order).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	var orders []model.Order
+	if err := db.Conn.Preload("Shipment").Find(&orders).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, order)
+	var result []AddTrackingOrderRead
+	for _, order := range orders {
+		result = append(result, AddTrackingOrderRead{
+			ID:           order.ID,
+			UserID:       order.UserID,
+			StoreID:      order.StoreID,
+			ShipmentID:   uint(order.ShipmentID),
+			ShipmentName: order.Shipment.Name,
+			Tracking:     order.Tracking,
+		})
+	}
+	c.JSON(http.StatusOK, result)
 }
 
 func GetOrderOne(c *gin.Context) {
