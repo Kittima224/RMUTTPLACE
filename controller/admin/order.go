@@ -90,24 +90,3 @@ func GetOrderOne(c *gin.Context) {
 	result.Products = ot
 	c.JSON(http.StatusOK, result)
 }
-
-func GetOrderOne1(c *gin.Context) {
-	id := c.Param("id")
-	var orders []model.Order
-	var orderItem []model.OrderItem
-	if err := db.Conn.Preload("Store").Find(&orders, " id=?", id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	for _, orders := range orders {
-		var ot []model.OrderItem
-		query := db.Conn.Preload("Product").Find(&ot, "order_id=?", orders.ID)
-		if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-			return
-		}
-		orderItem = append(orderItem, ot...)
-	}
-
-	c.JSON(http.StatusOK, orderItem)
-}

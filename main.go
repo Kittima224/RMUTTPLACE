@@ -125,6 +125,8 @@ func main() {
 
 	r.GET("/admin/orders", AdminController.GetOrderAll)
 	r.GET("/admin/order/:id", AdminController.GetOrderOne)
+
+	r.GET("/admin/dashboard", AdminController.Dashboard)
 	//test
 
 	//http.ListenAndServe(":3000", nil)
