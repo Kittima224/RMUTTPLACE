@@ -94,6 +94,8 @@ func main() {
 	store.GET("/order/:id", StoreController.GetOrderOne)
 	store.PATCH("/order/:id", StoreController.AddTrackingOrder)
 
+	store.GET("/dashboard", StoreController.DashboardStore)
+
 	//admin //admin //admin //admin //admin //admin //admin
 	r.GET("/admin/stores", AdminController.ReadAllStore)
 	r.GET("/admin/store/:id", AdminController.ReadOneStore)
