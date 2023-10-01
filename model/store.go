@@ -19,6 +19,7 @@ type Store struct {
 	AccountNumber string
 	AccountName   string
 	Bank          string
+	File          string
 }
 
 type StoreRead struct {

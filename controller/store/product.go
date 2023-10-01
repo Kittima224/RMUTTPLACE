@@ -40,27 +40,6 @@ func Create(c *gin.Context) {
 		CategoryID: json.CategoryID,
 		Available:  json.Available, Price: json.Price,
 		Weight: json.Weight}
-
-	// form, err := c.MultipartForm()
-	// if err != nil && !errors.Is(err, http.ErrMissingFile) {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	// 	return
-	// }
-	// files := form.File["images"]
-	// var photos []model.PhotoProduct
-	// for _, file := range files {
-	// 	imagePath := "./uploads/pd/" + uuid.New().String()
-	// 	if err := c.SaveUploadedFile(file, imagePath); err != nil {
-	// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-	// 		return
-	// 	}
-	// 	photos = append(photos, model.PhotoProduct{
-	// 		StoreID:   uint(storeId),
-	// 		ProductID: uint(product.ID),
-	// 		Image:     imagePath,
-	// 	})
-	// }
-	// product.Images = photos
 	image, err := c.FormFile("image")
 	if err != nil && !errors.Is(err, http.ErrMissingFile) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -111,32 +90,6 @@ func UpdateProductMystore(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	// form, err := c.MultipartForm()
-	// if err != nil && !errors.Is(err, http.ErrMissingFile) {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	// 	return
-	// }
-	// //ยังลบรูปเก่าออกไม่ได้
-	// files := form.File["images"]
-	// if files != nil {
-	// 	var photo model.PhotoProduct
-	// 	var photos []model.PhotoProduct
-	// 	for _, file := range files {
-	// 		imagePath := "./uploads/pd/" + uuid.New().String()
-	// 		if err := c.SaveUploadedFile(file, imagePath); err != nil {
-	// 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-	// 			return
-	// 		}
-	// 		os.Remove(photo.Image)
-	// 		photos = append(photos, model.PhotoProduct{
-	// 			StoreID:   uint(storeId),
-	// 			ProductID: uint(product.ID),
-	// 			Image:     imagePath,
-	// 		})
-
-	// 	}
-	// 	product.Images = photos
-	// }
 	image, err := c.FormFile("image")
 	if err != nil && !errors.Is(err, http.ErrMissingFile) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -201,24 +154,6 @@ func ReadProductAllMyStore(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	// for _, product := range products {
-	// 	pr := model.Product{
-	// 		Name: product.Name,
-	// 		Desc: product.Desc,
-	// 		//Category: product.Category,
-	// 		Price: product.Price,
-	// 	}
-	// 	var images []model.PhotoProduct
-	// 	for _, image := range pr.Images {
-	// 		images = append(images, model.PhotoProduct{
-	// 			ProductID: image.ProductID,
-	// 			StoreID:   image.StoreID,
-	// 			Image:     image.Image,
-	// 		})
-	// 	}
-	// 	pr.Images = images
-	// 	products = append(products, pr)
-	// }
 
 	c.JSON(http.StatusOK, products)
 }

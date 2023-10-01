@@ -80,9 +80,8 @@ func main() {
 	store := r.Group("/stores", middleware.JWTAuthenStore())
 	store.GET("/readall", StoreController.ReadAll)
 	store.GET("/profile", StoreController.Profile)
-	store.PATCH("/profile", StoreController.UpdateProfileMystore)
-	store.PATCH("/addinfo", StoreController.AddProfileMystore)
-	store.PATCH("/changeprofile", StoreController.ChangProfileMystore)
+	store.PATCH("/profile", StoreController.UpdateMyStore)
+	// store.PATCH("/changeprofile", StoreController.ChangProfileMystore) chang pass
 
 	store.POST("/product", StoreController.Create)
 	store.GET("/products", StoreController.ReadProductAllMyStore) //รวมกับ findnameproduct
