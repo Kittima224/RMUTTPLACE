@@ -25,6 +25,7 @@ func CreateOrder(c *gin.Context) {
 	var json OrderBody
 	var order model.Order
 	var cart model.Cart
+	// var product model.Product
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -32,12 +33,18 @@ func CreateOrder(c *gin.Context) {
 	var orderItems []model.OrderItem
 	for _, product := range json.Carts {
 		orderItems = append(orderItems, model.OrderItem{
-			// StoreID:   product.StoreID,
 			ProductID: product.ProductID,
 			Quantity:  product.Quantity,
 		})
 		db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID)
 	}
+	// 	var quantity int
+	// 	for _,q := range json.Carts{
+	// 		quantity = append(quantity,model.OrderItem{
+	// 			Quantity: q.Quantity,
+	// 		})
+	// 	}
+	// product.Available=product.Available-quantity
 	order.StoreID = json.StoreID
 	order.UserID = uint(userId)
 	order.Products = orderItems
