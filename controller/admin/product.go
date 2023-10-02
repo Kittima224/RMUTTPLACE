@@ -2,6 +2,7 @@ package admin
 
 import (
 	"RmuttPlace/db"
+	"RmuttPlace/dto"
 	"RmuttPlace/model"
 	"errors"
 	"net/http"
@@ -69,35 +70,6 @@ func DeleteProduct(c *gin.Context) {
 	}
 }
 
-type ProductRead struct {
-	ID        uint
-	Name      string
-	Desc      string
-	Category  model.CategoryRead
-	Available int
-	Price     int
-	Weight    int
-}
-
-type ProductReadOne struct {
-	ID        uint
-	Name      string
-	Desc      string
-	Category  model.CategoryRead
-	Store     model.StoreRead
-	Image     string
-	Available int
-	Price     int
-	Weight    int
-	Reviews   []ReviewBodyRead
-}
-type ReviewBodyRead struct {
-	UserID  int
-	Name    string
-	Comment string
-	Rating  int
-}
-
 func ReadOneProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product model.Product
@@ -112,7 +84,7 @@ func ReadOneProduct(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	result := ProductReadOne{
+	result := dto.ProductReadOne{
 		ID:        product.ID,
 		Name:      product.Name,
 		Desc:      product.Desc,
@@ -129,9 +101,9 @@ func ReadOneProduct(c *gin.Context) {
 			Name: product.Store.NameStore,
 		},
 	}
-	var rv []ReviewBodyRead
+	var rv []dto.ReviewBodyRead
 	for _, r := range reviews {
-		rv = append(rv, ReviewBodyRead{
+		rv = append(rv, dto.ReviewBodyRead{
 			UserID:  r.UserID,
 			Name:    r.User.UserName,
 			Comment: r.Comment,
@@ -166,15 +138,16 @@ func ReadProductAll(c *gin.Context) {
 	var products []model.Product
 	db.Conn.Preload("Category").Find(&products)
 
-	var result []ProductRead
+	var result []dto.ProductRead
 	for _, product := range products {
-		result = append(result, ProductRead{
+		result = append(result, dto.ProductRead{
 			ID:        product.ID,
 			Name:      product.Name,
 			Desc:      product.Desc,
 			Available: product.Available,
 			Price:     product.Price,
 			Weight:    product.Weight,
+			Image:     product.Image,
 			Category: model.CategoryRead{
 				ID:   product.Category.ID,
 				Name: product.Category.Name,

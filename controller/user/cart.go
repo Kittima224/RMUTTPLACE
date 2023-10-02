@@ -2,21 +2,16 @@ package user
 
 import (
 	"RmuttPlace/db"
+	"RmuttPlace/dto"
 	"RmuttPlace/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type Cart struct {
-	UserID    uint `json:"userId"`
-	ProductID uint `json:"productId"`
-	Quantity  int  `json:"quantity"`
-}
-
 func AddCart(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
-	var json Cart
+	var json dto.CartRequest
 	var cart model.Cart
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -29,14 +24,14 @@ func AddCart(c *gin.Context) {
 		return
 	}
 	var count int64
-	db.Conn.Model(&Cart{}).Where("user_id=?", uint(userId)).Group("product_id").Count(&count)
+	db.Conn.Model(&model.Cart{}).Where("user_id=?", uint(userId)).Group("product_id").Count(&count)
 	if count > 100 {
 		c.JSON(http.StatusOK, gin.H{"message": "cart max"})
 		return
 	}
 	db.Conn.Find(&cart, "product_id = ? AND user_id = ?", json.ProductID, int(userId))
 	if uint(userId) == cart.UserID && json.ProductID == cart.ProductID {
-		db.Conn.Model(&cart).Where("product_id = ? AND user_id = ?", json.ProductID, int(userId)).Updates(Cart{UserID: uint(userId), ProductID: json.ProductID,
+		db.Conn.Model(&cart).Where("product_id = ? AND user_id = ?", json.ProductID, int(userId)).Updates(model.Cart{UserID: uint(userId), ProductID: json.ProductID,
 			Quantity: json.Quantity + cart.Quantity})
 		c.JSON(http.StatusOK, gin.H{"cart ==": cart, "total": count})
 		return
@@ -45,7 +40,12 @@ func AddCart(c *gin.Context) {
 		cart.UserID = uint(userId)
 		cart.Quantity = json.Quantity
 		db.Conn.Create(&cart)
-		c.JSON(http.StatusOK, gin.H{"cart": cart, "total": count})
+		result := dto.CartResponse{
+			UserID:    cart.UserID,
+			ProductID: cart.ProductID,
+			Quantity:  cart.Quantity,
+		}
+		c.JSON(http.StatusOK, gin.H{"cart": result, "total": count})
 		return
 	}
 }
@@ -53,9 +53,8 @@ func AddCart(c *gin.Context) {
 func MyCart(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	var carts []model.Cart
-	db.Conn.Model(&Cart{}).Preload("Product").Find(&carts, "user_id=?", uint(userId))
+	db.Conn.Model(&model.Cart{}).Preload("Product").Find(&carts, "user_id=?", uint(userId))
 	c.JSON(http.StatusOK, gin.H{"cart": carts})
-	//รูปขึ้น 1 รูป
 }
 
 func DeleteProductMyCart(c *gin.Context) {
@@ -73,7 +72,7 @@ func DeleteProductMyCart(c *gin.Context) {
 
 func UpdateQuantity(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
-	var json Cart
+	var json dto.CartRequest
 	var cart model.Cart
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -81,7 +80,7 @@ func UpdateQuantity(c *gin.Context) {
 	}
 	db.Conn.Find(&cart, "product_id = ? AND user_id = ?", json.ProductID, int(userId))
 	if uint(userId) == cart.UserID && json.ProductID == cart.ProductID {
-		db.Conn.Model(&cart).Where("product_id = ? AND user_id = ?", json.ProductID, int(userId)).Updates(Cart{UserID: uint(userId), ProductID: json.ProductID,
+		db.Conn.Model(&cart).Where("product_id = ? AND user_id = ?", json.ProductID, int(userId)).Updates(model.Cart{UserID: uint(userId), ProductID: json.ProductID,
 			Quantity: json.Quantity})
 		c.JSON(http.StatusOK, gin.H{"cart": cart})
 		return

@@ -17,7 +17,6 @@ type OrderItem struct {
 	gorm.Model
 	OrderID   uint
 	ProductID uint
-	// StoreID   uint
-	Quantity int
-	Product  Product `gorm:"foreignKey:ProductID"`
+	Quantity  int
+	Product   Product `gorm:"foreignKey:ProductID"`
 }

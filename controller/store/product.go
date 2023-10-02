@@ -2,6 +2,7 @@ package store
 
 import (
 	"RmuttPlace/db"
+	"RmuttPlace/dto"
 	"RmuttPlace/model"
 	"errors"
 	"net/http"
@@ -130,8 +131,14 @@ func FindOneProductMyStore(c *gin.Context) {
 	storeId := c.MustGet("storeId").(float64)
 	var product model.Product
 	var store model.Store
-	query := db.Conn.Preload("Images").Find(&product, id)
+	var reviews []model.Review
+	query := db.Conn.Preload("Store").Preload("Category").Find(&product, id)
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	query2 := db.Conn.Preload("User").Find(&reviews, "product_id", id)
+	if err := query2.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -140,22 +147,72 @@ func FindOneProductMyStore(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"product": product})
+	result := dto.ProductReadOne{
+		ID:        product.ID,
+		Name:      product.Name,
+		Desc:      product.Desc,
+		Available: product.Available,
+		Image:     product.Image,
+		Price:     product.Price,
+		Weight:    product.Weight,
+		Category: model.CategoryRead{
+			ID:   product.Category.ID,
+			Name: product.Category.Name,
+		},
+		Store: model.StoreRead{
+			ID:   product.Store.ID,
+			Name: product.Store.NameStore,
+		},
+	}
+	var rv []dto.ReviewBodyRead
+	for _, r := range reviews {
+		rv = append(rv, dto.ReviewBodyRead{
+			UserID:  r.UserID,
+			Name:    r.User.UserName,
+			Comment: r.Comment,
+			Rating:  r.Rating,
+		})
+	}
+	result.Reviews = rv
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "product Read Success", "product": result})
 
 }
 
 func ReadProductAllMyStore(c *gin.Context) {
 	storeId := c.MustGet("storeId").(float64)
+	search := c.Query("search")
+	category := c.Query("category")
 	var store model.Store
 	var products []model.Product
-	db.Conn.Find(&products, "store_id =?", int(storeId))
+	if category != "" {
+		db.Conn.Find(&products, "category LIKE ?", "%"+category+"%")
+	}
+	if search != "" {
+		db.Conn.Find(&products, "name LIKE ? ", "%"+search+"%")
+	}
+	db.Conn.Preload("Category").Find(&products, "store_id =?", int(storeId))
 
 	if err := db.Conn.Find(&store, "id =?", int(storeId)).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, products)
+	var result []dto.ProductRead
+	for _, product := range products {
+		result = append(result, dto.ProductRead{
+			ID:        product.ID,
+			Name:      product.Name,
+			Desc:      product.Desc,
+			Available: product.Available,
+			Price:     product.Price,
+			Weight:    product.Weight,
+			Category: model.CategoryRead{
+				ID:   product.Category.ID,
+				Name: product.Category.Name,
+			},
+		})
+	}
+	c.JSON(http.StatusOK, result)
 }
 
 func FindNameProduct(c *gin.Context) {
@@ -168,9 +225,23 @@ func FindNameProduct(c *gin.Context) {
 	if search != "" {
 		db.Conn.Find(&products, "name LIKE ? ", "%"+search+"%")
 	}
-	c.JSON(http.StatusOK, gin.H{"products": products})
+	var result []dto.ProductRead
+	for _, product := range products {
+		result = append(result, dto.ProductRead{
+			ID:        product.ID,
+			Name:      product.Name,
+			Desc:      product.Desc,
+			Available: product.Available,
+			Price:     product.Price,
+			Weight:    product.Weight,
+			Category: model.CategoryRead{
+				ID:   product.Category.ID,
+				Name: product.Category.Name,
+			},
+		})
+	}
+	c.JSON(http.StatusOK, result)
 
-	//ใช้เก็บข้อมูลมาวิเคราะห์
 }
 
 func ReadProductAll(c *gin.Context) {

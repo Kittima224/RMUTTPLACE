@@ -28,17 +28,14 @@ func Profile(c *gin.Context) {
 }
 
 type StoreBody struct {
-	UserName      string `form:"username"`
-	Tel           string `form:"tel"`
-	NameStore     string `form:"namestore"`
-	Address       string `form:"address"`
-	District      string `form:"district"`
-	SubDistrict   string `form:"subdistrict"`
-	Province      string `form:"province"`
-	Zipcode       string `form:"zipcode"`
-	AccountNumber string `form:"account_number"`
-	AccountName   string `form:"account_name"`
-	Bank          string `form:"bank"`
+	UserName    string `form:"username"`
+	Tel         string `form:"tel"`
+	NameStore   string `form:"namestore"`
+	Address     string `form:"address"`
+	District    string `form:"district"`
+	SubDistrict string `form:"subdistrict"`
+	Province    string `form:"province"`
+	Zipcode     string `form:"zipcode"`
 }
 
 func UpdateMyStore(c *gin.Context) {
@@ -80,8 +77,7 @@ func UpdateMyStore(c *gin.Context) {
 
 	db.Conn.Model(&store).Updates(StoreBody{UserName: json.UserName, Tel: json.Tel,
 		NameStore: json.NameStore, Address: json.Address, District: json.District, SubDistrict: json.SubDistrict,
-		Province: json.Province, Zipcode: json.Zipcode,
-		AccountNumber: json.AccountNumber, AccountName: json.AccountName, Bank: json.Bank})
+		Province: json.Province, Zipcode: json.Zipcode})
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "update store", "store": store})
 

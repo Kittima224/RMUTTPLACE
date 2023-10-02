@@ -75,7 +75,8 @@ func main() {
 	user.GET("/myorder", UserController.MyOrderAll)
 	user.GET("/myorder/:id", UserController.MyOrderFindOne)
 
-	user.POST("/fav", UserController.AddUnFav)
+	user.POST("/fav", UserController.AddFav)
+	user.DELETE("/fav", UserController.UnFav)
 	user.GET("/fav", UserController.MyFav)
 
 	user.POST("/product/review/:id", UserController.CreateReview)
