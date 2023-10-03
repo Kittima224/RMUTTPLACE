@@ -35,7 +35,7 @@ func Dashboard(c *gin.Context) {
 		Value int    `json:"value"`
 	}
 	var r []Chart
-	db.Conn.Raw("SELECT DATE_FORMAT(ot.created_at,'%M') as name,SUM(ot.quantity*p.price) as value,DATE_FORMAT(ot.created_at,'%m') as id FROM `order_items` as ot JOIN `products` as p ON ot.product_id=p.id GROUP BY DATE_FORMAT(created_at,'%M')").Scan(&r)
+	db.Conn.Raw("SELECT DATE_FORMAT(ot.created_at,'%M') as name,SUM(ot.quantity*p.price) as value,DATE_FORMAT(ot.created_at,'%m') as id FROM order_items as ot JOIN products as p ON ot.product_id=p.id GROUP BY DATE_FORMAT(created_at,'%M')").Scan(&r)
 	c.JSON(http.StatusOK, gin.H{"total_price": humanize.Commaf(float64(totalPrice)),
 		"count_store":   humanize.Commaf(float64(cstore)),
 		"count_acc":     humanize.Commaf(float64(cuser)),
