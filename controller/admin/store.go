@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -99,4 +100,64 @@ func ReadOneStore(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "store Read Success", "store": store})
+}
+
+type CreateStoreByAdminRequest struct {
+	Email       string `form:"email" binding:"required"`
+	Password    string `form:"password" binding:"required"`
+	UserName    string `form:"username"`
+	NameStore   string `form:"namestore"`
+	Tel         string `form:"tel"`
+	Address     string `form:"address"`
+	District    string `form:"district"`
+	SubDistrict string `form:"subdistrict"`
+	Province    string `form:"province"`
+	Zipcode     string `form:"zipcode"`
+}
+
+func StoreRegister(c *gin.Context) {
+	var json CreateStoreByAdminRequest
+	if err := c.ShouldBind(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	//check user exists
+	var storeExist model.Store
+	db.Conn.Where("email = ?", json.Email).First(&storeExist)
+	if storeExist.ID > 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "ok",
+			"message": "Store Exists",
+		})
+		return
+	}
+	encrytedPassword, _ := bcrypt.GenerateFromPassword([]byte(json.Password), 10)
+	store := model.Store{Email: json.Email, UserName: json.UserName, Password: string(encrytedPassword), Tel: json.Tel,
+		Address: json.Address, District: json.District, SubDistrict: json.SubDistrict, Province: json.Province,
+		Zipcode: json.Zipcode}
+	db.Conn.Create(&store)
+	image, err := c.FormFile("image")
+	if err != nil && !errors.Is(err, http.ErrMissingFile) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if image != nil {
+		imagePath := "./uploads/profilestores/" + uuid.New().String()
+		c.SaveUploadedFile(image, imagePath)
+		os.Remove(store.Image)
+		store.Image = imagePath
+	}
+	db.Conn.Save(&store)
+	if store.ID > 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "ok",
+			"message": "store create success",
+			"storeId": store.ID,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "error",
+			"message": "store create failed",
+		})
+	}
 }

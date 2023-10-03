@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"gorm.io/driver/postgres"
-	// "gorm.io/driver/mysql"
+	//"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -36,5 +36,6 @@ func Migrate() {
 		&model.Order{},
 		&model.OrderItem{},
 		&model.Category{},
+		&model.Chart{},
 	)
 }

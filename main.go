@@ -7,7 +7,6 @@ import (
 	UserController "RmuttPlace/controller/user"
 	"RmuttPlace/db"
 	"RmuttPlace/middleware"
-
 	"log"
 	"os"
 
@@ -106,6 +105,7 @@ func main() {
 	store.GET("/dashboard", StoreController.DashboardStore)
 
 	//admin //admin //admin //admin //admin //admin //admin
+	r.POST("/admin/store", AdminController.StoreRegister)
 	r.GET("/admin/stores", AdminController.ReadAllStore)
 	r.GET("/admin/store/:id", AdminController.ReadOneStore)
 	r.PATCH("/admin/store/update/:id", AdminController.UpdateStore)
@@ -116,6 +116,7 @@ func main() {
 	r.GET("/admin/product/:id", AdminController.ReadOneProduct)
 	r.PATCH("/admin/product/update/:id", AdminController.UpdateProduct)
 
+	r.POST("/admin/user", AdminController.Register)
 	r.GET("/admin/users", AdminController.ReadAllUser)
 	r.GET("/admin/user/:id", AdminController.ReadOneUser)
 	r.PATCH("/admin/user/update/:id", AdminController.UpdateUser)
@@ -138,6 +139,7 @@ func main() {
 	r.GET("/admin/order/:id", AdminController.GetOrderOne)
 
 	r.GET("/admin/dashboard", AdminController.Dashboard)
+	r.GET("/admin/dashboard/chart", AdminController.ChartRead)
 	//test
 
 	//http.ListenAndServe(":3000", nil)
