@@ -128,11 +128,10 @@ func FindNameProduct(c *gin.Context) {
 		db.Conn.Find(&products, "category LIKE ?", "%"+category+"%")
 	}
 	if search != "" {
-		db.Conn.Find(&products, "name LIKE ? ", "%"+search+"%")
+		db.Conn.Find(&products, "name LIKE ? or desc LIKE? ", "%"+search+"%")
 	}
 	c.JSON(http.StatusOK, gin.H{"products": products})
 
-	//ใช้เก็บข้อมูลมาวิเคราะห์
 }
 func ReadProductAll(c *gin.Context) {
 	var products []model.Product

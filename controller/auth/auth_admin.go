@@ -3,6 +3,7 @@ package auth
 import (
 	"RmuttPlace/db"
 	"RmuttPlace/model"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,20 +12,21 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	_ "github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var hmacSampleSecretAdmin []byte
 
 type RegisterAdmineBody struct {
-	Email    string `json:"email" binding:"required"`
-	UserName string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Email    string `form:"email" binding:"required"`
+	UserName string `form:"username" binding:"required"`
+	Password string `form:"password" binding:"required"`
 }
 
 func RegisterAdmin(c *gin.Context) {
 	var json RegisterAdmineBody
-	if err := c.ShouldBindJSON(&json); err != nil {
+	if err := c.ShouldBind(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -42,6 +44,18 @@ func RegisterAdmin(c *gin.Context) {
 	encrytedPassword, _ := bcrypt.GenerateFromPassword([]byte(json.Password), 10)
 	admin := model.Admin{Email: json.Email, UserName: json.UserName, Password: string(encrytedPassword)}
 	db.Conn.Create(&admin)
+	image, err := c.FormFile("image")
+	if err != nil && !errors.Is(err, http.ErrMissingFile) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if image != nil {
+		imagePath := "./uploads/pd/" + uuid.New().String()
+		c.SaveUploadedFile(image, imagePath)
+		os.Remove(admin.Image)
+		admin.Image = imagePath
+	}
+	db.Conn.Save(&admin)
 	if admin.ID > 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "ok",

@@ -134,7 +134,7 @@ func StoreRegister(c *gin.Context) {
 	encrytedPassword, _ := bcrypt.GenerateFromPassword([]byte(json.Password), 10)
 	store := model.Store{Email: json.Email, UserName: json.UserName, Password: string(encrytedPassword), Tel: json.Tel,
 		Address: json.Address, District: json.District, SubDistrict: json.SubDistrict, Province: json.Province,
-		Zipcode: json.Zipcode}
+		Zipcode: json.Zipcode, NameStore: json.NameStore}
 	db.Conn.Create(&store)
 	image, err := c.FormFile("image")
 	if err != nil && !errors.Is(err, http.ErrMissingFile) {

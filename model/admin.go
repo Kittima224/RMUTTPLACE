@@ -7,4 +7,5 @@ type Admin struct {
 	Email    string
 	UserName string
 	Password string
+	Image    string
 }
