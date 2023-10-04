@@ -4,8 +4,8 @@ import (
 	"RmuttPlace/model"
 	"os"
 
-	//	"gorm.io/driver/postgres"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	//"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -15,7 +15,7 @@ var err error
 
 func InitDB() {
 	dsn := os.Getenv("MYSQL_DNS")
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	if err != nil {
 		panic("failed to connect database")
 	}

@@ -7,7 +7,8 @@ import (
 	UserController "RmuttPlace/controller/user"
 	"RmuttPlace/db"
 	"RmuttPlace/middleware"
-	"fmt"
+	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -31,18 +32,18 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func main() {
-	// if os.Getenv("APP_ENV") == "production" {
-	// 	gin.SetMode(gin.ReleaseMode)
-	// } else {
-	// 	if err := godotenv.Load(); err != nil {
-	// 		log.Fatal("Error loading .env file")
-	// 	}
-	// }
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		fmt.Println("Error loading .env file")
+	if os.Getenv("APP_ENV") == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		if err := godotenv.Load(); err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
+	// err := godotenv.Load(".env")
+
+	// if err != nil {
+	// 	fmt.Println("Error loading .env file")
+	// }
 	db.InitDB()
 	db.Migrate()
 
@@ -141,11 +142,11 @@ func main() {
 	//test
 
 	//http.ListenAndServe(":3000", nil)
-	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	//r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 
-	// port := os.Getenv("PORT")
-	// if port != "" {
-	// 	port = "8080"
-	// }
-	// r.Run(":" + port)
+	port := os.Getenv("PORT")
+	if port != "" {
+		port = "8080"
+	}
+	r.Run(":" + port)
 }
