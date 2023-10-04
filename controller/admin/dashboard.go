@@ -2,10 +2,9 @@ package admin
 
 import (
 	"RmuttPlace/db"
-	"RmuttPlace/model"
 
 	// "fmt"
-	"log"
+
 	"net/http"
 
 	"github.com/dustin/go-humanize"
@@ -90,33 +89,7 @@ type ChartResponse struct {
 	Name  string `json:"name"`
 	Value int    `json:"value"`
 }
-
-func ChartRead(c *gin.Context) {
-	var categories []model.Category
-	rows, err := db.Conn.Raw("SELECT categories.id as id,categories.name as name ,COUNT(products.id) as value from products JOIN categories on products.category_id = categories.id WHERE products.deleted_at is null GROUP by products.category_id").Rows()
-	defer rows.Close()
-	for rows.Next() {
-		db.Conn.ScanRows(rows, &categories)
-		c.JSON(http.StatusOK, &categories)
-	}
-	if err != nil {
-		log.Fatal(err)
-	}
-	// var count int
-	// rows, err := db.Conn.Model(&model.Category{}).Group("name").Select("id,name,coun(name)").Count(&count).Rows()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// for rows.Next() {
-	// 	var id int
-	// 	var name string
-	// 	var count int
-	// 	if err := rows.Scan(&id, &name, &count); err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	fmt.Printf("%s is %d\n %d", name, id, count)
-	// }
-	// if err := rows.Err(); err != nil {
-	// 	log.Fatal(err)
-	// }
+type PieChart struct {
+	Name  string
+	Value int
 }

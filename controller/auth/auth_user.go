@@ -91,6 +91,8 @@ func Login(c *gin.Context) {
 			"status":  "ok",
 			"message": "Login success",
 			"token":   tokenString,
+			"user":    userExist.UserName,
+			"image":   userExist.Image,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
