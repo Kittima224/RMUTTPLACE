@@ -58,7 +58,7 @@ func AddProfileUser(c *gin.Context) {
 	// 	return
 	// }
 	if image != nil {
-		imagePath := "./uploads/profileusers/" + uuid.New().String()
+		imagePath := "./uploads/users/" + uuid.New().String()
 		c.SaveUploadedFile(image, imagePath)
 		os.Remove(user.Image)
 		user.Image = imagePath
@@ -100,7 +100,7 @@ func UpdateProfileUser(c *gin.Context) {
 		return
 	}
 	if image != nil {
-		imagePath := "./uploads/profileusers/" + uuid.New().String()
+		imagePath := "./uploads/users/" + uuid.New().String()
 		c.SaveUploadedFile(image, imagePath)
 		os.Remove(user.Image)
 		user.Image = imagePath
