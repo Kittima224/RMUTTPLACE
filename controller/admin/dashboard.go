@@ -10,7 +10,6 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
-	// "github.com/google/go-querystring/query"
 )
 
 func Dashboard(c *gin.Context) {
@@ -26,9 +25,27 @@ func Dashboard(c *gin.Context) {
 	var cproduct int
 	db.Conn.Raw("SELECT COUNT(id) from products WHERE deleted_at is null").Scan(&cproduct)
 
-	// data := []result{}
-	// rows,err := db.Conn.Query()
+	// type PieChart struct {
+	// 	Name  string
+	// 	Value int
+	// }
+	// data := []PieChart
+	// rows, err := db.Conn.Query("Select name,count(name)  as value, from categories group by name")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
+	// defer rows.Close()
+	// var name string
+
+	// for rows.Next() {
+	// 	err := rows.Scan(&PieChart{Name: name})
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	data = append(data, model.Category{Name: name})
+	// }
+	// fmt.Println(data)
 	// type pieRead struct {
 	// 	ID    uint   `json:"id"`
 	// 	Name  string `json:"name"`
