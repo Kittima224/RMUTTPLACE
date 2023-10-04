@@ -11,6 +11,7 @@ type ProductRead struct {
 	Price     int
 	Weight    int
 	Image     string
+	Rating    int
 }
 
 type ProductReadOne struct {
@@ -24,6 +25,7 @@ type ProductReadOne struct {
 	Price     int
 	Weight    int
 	Reviews   []ReviewBodyRead
+	Rating    int
 }
 type ReviewBodyRead struct {
 	UserID  int

@@ -43,7 +43,14 @@ func CreateReview(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+	var count int64
+	if err := db.Conn.Model(&model.Review{}).Where("product_id = ?", id).Count(&count).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
 	n, _ := strconv.Atoi(id)
+	product.Rating = (product.Rating + json.Rating) / int(count)
 	review.ProductID = n
 	review.Comment = json.Comment
 	review.Rating = json.Rating

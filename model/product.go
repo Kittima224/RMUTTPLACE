@@ -15,6 +15,7 @@ type Product struct {
 	Weight     int
 	Category   Category
 	Reviews    []Review `gorm:"foreignKey:ProductID"`
+	Rating     int
 }
 
 type Review struct {

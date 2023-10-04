@@ -3,11 +3,14 @@ package admin
 import (
 	"RmuttPlace/db"
 	"RmuttPlace/model"
+
+	// "fmt"
 	"log"
 	"net/http"
 
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
+	// "github.com/google/go-querystring/query"
 )
 
 func Dashboard(c *gin.Context) {
@@ -23,6 +26,9 @@ func Dashboard(c *gin.Context) {
 	var cproduct int
 	db.Conn.Raw("SELECT COUNT(id) from products WHERE deleted_at is null").Scan(&cproduct)
 
+	// data := []result{}
+	// rows,err := db.Conn.Query()
+
 	// type pieRead struct {
 	// 	ID    uint   `json:"id"`
 	// 	Name  string `json:"name"`
@@ -33,9 +39,7 @@ func Dashboard(c *gin.Context) {
 	// var id uint
 	// var name string
 	// var value int
-	// row := db.Conn.Raw("SELECT categories.id as id,categories.name as name ,COUNT(products.id) as value from products JOIN categories on products.category_id = categories.id WHERE products.deleted_at is null GROUP by products.category_id").Row()
-	// row.Scan(&id, &name, &value)
-
+	//db.Conn.Raw("SELECT categories.id as id,categories.name as name ,COUNT(products.id) as value from products JOIN categories on products.category_id = categories.id WHERE products.deleted_at is null GROUP by products.category_id").Scan(&result)
 	// result = append(result, pieRead{
 	// 	ID:    id,
 	// 	Name:  name,
@@ -59,7 +63,7 @@ func Dashboard(c *gin.Context) {
 		"count_store":   humanize.Commaf(float64(cstore)),
 		"count_acc":     humanize.Commaf(float64(cuser)),
 		"count_product": humanize.Commaf(float64(cproduct)),
-		// "pie":           result,
+		// "pie":           re,
 		// "chart":         r,
 	})
 }
