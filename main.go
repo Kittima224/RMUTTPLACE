@@ -62,6 +62,7 @@ func main() {
 
 	admin := r.Group("/admins", middleware.JWTAuthenAdmin())
 	admin.GET("/profile", AdminController.Profile)
+	admin.GET("/adminprofile", AdminController.GetProfile)
 	admin.GET("/all", AdminController.ReadAll)
 
 	user := r.Group("/users", middleware.JWTAuthen())

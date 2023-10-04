@@ -22,3 +22,9 @@ func ReadAll(c *gin.Context) {
 	db.Conn.Find(&admins)
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "User Read Success", "admin": admins})
 }
+func GetProfile(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	db.Conn.Find(&admin, adminId)
+	c.JSON(http.StatusOK, gin.H{"adminImage": admin.Image})
+}

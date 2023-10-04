@@ -50,7 +50,7 @@ func RegisterAdmin(c *gin.Context) {
 		return
 	}
 	if image != nil {
-		imagePath := "./uploads/pd/" + uuid.New().String()
+		imagePath := "./uploads/admins/" + uuid.New().String()
 		c.SaveUploadedFile(image, imagePath)
 		os.Remove(admin.Image)
 		admin.Image = imagePath
@@ -61,6 +61,7 @@ func RegisterAdmin(c *gin.Context) {
 			"status":  "ok",
 			"message": "admin create success",
 			"adminId": admin.ID,
+			"image":   adminExist.Image,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
