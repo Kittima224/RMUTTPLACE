@@ -114,7 +114,7 @@ func main() {
 	r.DELETE("/admin/store/del", AdminController.DeleteStore)
 
 	r.GET("/admin/products", AdminController.ReadProductAll)
-	r.GET("/admin/product/:id", AdminController.ProductAllStore)
+	r.GET("/admin/productmystore/:id", AdminController.ProductAllStore)
 	r.DELETE("/admin/product/del", AdminController.DeleteProduct)
 	r.GET("/admin/product/:id", AdminController.ReadOneProduct)
 	r.PATCH("/admin/product/update/:id", AdminController.UpdateProduct)

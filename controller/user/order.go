@@ -25,7 +25,7 @@ func CreateOrder(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	var json OrderBody
 	var order model.Order
-	// var cart model.Cart
+	var cart model.Cart
 	// var pro model.Product
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -37,7 +37,8 @@ func CreateOrder(c *gin.Context) {
 			ProductID: product.ProductID,
 			Quantity:  product.Quantity,
 		})
-		// if err := db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID).Error; err != nil {
+		db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID)
+		// if err :=.Error; err != nil {
 		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		// 	return
 		// }
