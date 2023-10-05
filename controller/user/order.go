@@ -4,6 +4,7 @@ import (
 	"RmuttPlace/db"
 	"RmuttPlace/model"
 	"errors"
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func CreateOrder(c *gin.Context) {
 	var json OrderBody
 	var order model.Order
 	var cart model.Cart
-	// var product model.Product
+	var pro model.Product
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -36,8 +37,22 @@ func CreateOrder(c *gin.Context) {
 			ProductID: product.ProductID,
 			Quantity:  product.Quantity,
 		})
-		db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID)
+		if err := db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if err := db.Conn.Model(&pro).Where("id=?", product.ProductID).Update("available", pro.Available-product.Quantity).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 	}
+
+	// if err := db.Conn.Model(&pro).Where("id=?", product.ProductID).Update("available", pro.Available-product.Quantity).Error; err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
+	// fmt.Println(product.ProductID)
+	// fmt.Println(product.Quantity)
 
 	// 	var quantity int
 	// 	for _,q := range json.Carts{
@@ -50,11 +65,12 @@ func CreateOrder(c *gin.Context) {
 	order.UserID = uint(userId)
 	order.Products = orderItems
 	order.ShipmentID = 0
-	if err := db.Conn.Preload("Product").Create(&order).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	// if err := db.Conn.Preload("Product").Create(&order).Error; err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
 	c.JSON(http.StatusOK, gin.H{"order": order})
+
 }
 
 func MyOrderAll(c *gin.Context) {
