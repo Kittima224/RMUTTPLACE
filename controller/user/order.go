@@ -38,6 +38,7 @@ func CreateOrder(c *gin.Context) {
 		})
 		db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID)
 	}
+
 	// 	var quantity int
 	// 	for _,q := range json.Carts{
 	// 		quantity = append(quantity,model.OrderItem{

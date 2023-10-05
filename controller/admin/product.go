@@ -155,3 +155,31 @@ func ReadProductAll(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result)
 }
+
+func ProductAllStore(c *gin.Context) {
+	id := c.Param("id")
+	var products []model.Product
+	query := db.Conn.Preload("Category").Find(&products, "store_id", id)
+	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	var result []dto.ProductRead
+	for _, product := range products {
+		result = append(result, dto.ProductRead{
+			ID:        product.ID,
+			Name:      product.Name,
+			Desc:      product.Desc,
+			Available: product.Available,
+			Price:     product.Price,
+			Weight:    product.Weight,
+			Image:     product.Image,
+			Category: model.CategoryRead{
+				ID:   product.Category.ID,
+				Name: product.Category.Name,
+			},
+		})
+	}
+	c.JSON(http.StatusOK, result)
+
+}
