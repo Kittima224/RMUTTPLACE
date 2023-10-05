@@ -4,6 +4,7 @@ import (
 	"RmuttPlace/db"
 	"RmuttPlace/model"
 	"errors"
+	"fmt"
 
 	"net/http"
 
@@ -25,8 +26,9 @@ func CreateOrder(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	var json OrderBody
 	var order model.Order
-	var cart model.Cart
-	// var pro model.Product
+	//var cart model.Cart
+	var pro []model.Product
+	var p model.Product
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -37,15 +39,18 @@ func CreateOrder(c *gin.Context) {
 			ProductID: product.ProductID,
 			Quantity:  product.Quantity,
 		})
-		db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID)
-		// if err :=.Error; err != nil {
+		db.Conn.Find(&pro, "id=?", product.ProductID)
+		// if err := db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID).Error; err != nil {
 		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		// 	return
 		// }
-		// if err := db.Conn.Model(&pro).Where("id=?", product.ProductID).Update("available", pro.Available-product.Quantity).Error; err != nil {
+		// if err := db.Conn.Model(&pro).Where("id=?", product.ProductID).Error; err != nil {
 		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		// 	return
-		// }
+		// } .Update("available", pro.Available-product.Quantity)
+		fmt.Print(product.ProductID)
+		fmt.Println(product.Quantity)
+		fmt.Println(append(pro, model.Product{Available: p.Available - product.Quantity}))
 	}
 
 	// if err := db.Conn.Model(&pro).Where("id=?", product.ProductID).Update("available", pro.Available-product.Quantity).Error; err != nil {
@@ -66,10 +71,10 @@ func CreateOrder(c *gin.Context) {
 	order.UserID = uint(userId)
 	order.Products = orderItems
 	order.ShipmentID = 0
-	if err := db.Conn.Preload("Product").Create(&order).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	// if err := db.Conn.Preload("Product").Create(&order).Error; err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
 	c.JSON(http.StatusOK, gin.H{"order": order})
 
 }
