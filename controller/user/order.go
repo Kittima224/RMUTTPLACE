@@ -48,6 +48,7 @@ func CreateOrder(c *gin.Context) {
 	order.StoreID = json.StoreID
 	order.UserID = uint(userId)
 	order.Products = orderItems
+	order.ShipmentID = 0
 	if err := db.Conn.Preload("Product").Create(&order).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -34,7 +34,7 @@ func GetProfile(c *gin.Context) {
 }
 
 type AdminBody struct {
-	UserName string
+	UserName string `form:"username"`
 }
 
 func UpdateAdmin(c *gin.Context) {
