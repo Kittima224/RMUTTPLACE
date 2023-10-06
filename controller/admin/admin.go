@@ -59,5 +59,5 @@ func UpdateAdmin(c *gin.Context) {
 	admin.UserName = json.UserName
 	db.Conn.Save(&admin)
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "update product", "product": admin})
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "update admin", "admin": admin})
 }

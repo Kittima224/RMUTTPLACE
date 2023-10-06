@@ -13,14 +13,14 @@ import (
 
 type ReviewBody struct {
 	Comment string
-	Rating  int
+	Rating  float32
 }
 type ReviewBodyRead struct {
 	ProductID int
 	UserID    int
 	UserName  string
 	Comment   string
-	Rating    int
+	Rating    float32
 }
 
 func CreateReview(c *gin.Context) {
@@ -44,13 +44,13 @@ func CreateReview(c *gin.Context) {
 		return
 	}
 	var count int64
-	if err := db.Conn.Model(&model.Review{}).Where("product_id = ?", id).Count(&count).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	var s int
+	if err := db.Conn.Model(&model.Review{}).Select("sum(rating) as s").Where("product_id = ?", id).Count(&count).First(&s).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-
 	n, _ := strconv.Atoi(id)
-	product.Rating = (product.Rating + json.Rating) / int(count)
+	product.Rating = (float32(s) + json.Rating) / (float32(count) + 1)
 	review.ProductID = n
 	review.Comment = json.Comment
 	review.Rating = json.Rating

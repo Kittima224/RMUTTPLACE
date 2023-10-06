@@ -5,7 +5,6 @@ import (
 	"RmuttPlace/model"
 	"errors"
 	"fmt"
-
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,26 +19,33 @@ type OrderItemBody struct {
 	// StoreID   uint
 	ProductID uint
 	Quantity  int
+	Product   model.Product
+	Store     model.StoreRead
 }
 
 func CreateOrder(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	var json OrderBody
 	var order model.Order
-	//var cart model.Cart
-	var pro []model.Product
-	var p model.Product
+	//var products []model.Product
+	var pro model.Product
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	var p []uint
+	var q []int
 	var orderItems []model.OrderItem
+	db.Conn.Preload("Product").Find(&orderItems)
 	for _, product := range json.Carts {
 		orderItems = append(orderItems, model.OrderItem{
 			ProductID: product.ProductID,
 			Quantity:  product.Quantity,
 		})
-		db.Conn.Find(&pro, "id=?", product.ProductID)
+		// db.Conn.Find(&model.Product{}, "id=?", product.ProductID)
+		// c.JSON(http.StatusOK, product.Product.Available)
+		q = append(q, product.Quantity)  //1 2
+		p = append(p, product.ProductID) //54 55
 		// if err := db.Conn.Delete(&cart, "user_id =? and product_id=?", uint(userId), product.ProductID).Error; err != nil {
 		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		// 	return
@@ -47,35 +53,47 @@ func CreateOrder(c *gin.Context) {
 		// if err := db.Conn.Model(&pro).Where("id=?", product.ProductID).Error; err != nil {
 		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		// 	return
-		// } .Update("available", pro.Available-product.Quantity)
-		fmt.Print(product.ProductID)
-		fmt.Println(product.Quantity)
-		fmt.Println(append(pro, model.Product{Available: p.Available - product.Quantity}))
+		// }
+
+		//.Update("available", pro.Available-product.Quantity)
+
 	}
 
-	// if err := db.Conn.Model(&pro).Where("id=?", product.ProductID).Update("available", pro.Available-product.Quantity).Error; err != nil {
+	fmt.Println(p) //54 55 q1 2
+	fmt.Println(q) //15 15
+
+	for i := range p {
+		db.Conn.Find(&pro, "id=?", p[i]).Update("available", pro.Available-q[i])
+		p[i] = p[i] + 1
+		q[i] = q[i] + 1
+	}
+
+	// for _,update_available := range p{
+	// 	if err := db.Conn.Find(&pro).Where("id=?", p).Error; err != nil {
 	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	// 	return
 	// }
+	// pro.Available=pro.Available
+	// }
+
+	// if err := db.Conn.Find(&products).Where("id=?", p).Update("available",).Error; err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
+
 	// fmt.Println(product.ProductID)
 	// fmt.Println(product.Quantity)
 
-	// 	var quantity int
-	// 	for _,q := range json.Carts{
-	// 		quantity = append(quantity,model.OrderItem{
-	// 			Quantity: q.Quantity,
-	// 		})
-	// 	}
 	// product.Available=product.Available-quantity
 	order.StoreID = json.StoreID
 	order.UserID = uint(userId)
 	order.Products = orderItems
-	order.ShipmentID = 0
-	// if err := db.Conn.Preload("Product").Create(&order).Error; err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	// 	return
-	// }
-	c.JSON(http.StatusOK, gin.H{"order": order})
+	order.ShipmentID = 3
+	if err := db.Conn.Preload("Product").Create(&order).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"order": orderItems})
 
 }
 

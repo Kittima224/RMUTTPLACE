@@ -15,7 +15,7 @@ type Product struct {
 	Weight     int
 	Category   Category
 	Reviews    []Review `gorm:"foreignKey:ProductID"`
-	Rating     int
+	Rating     float32
 }
 
 type Review struct {
@@ -24,5 +24,5 @@ type Review struct {
 	UserID    int
 	User      User `gorm:"foreignKey:UserID"`
 	Comment   string
-	Rating    int
+	Rating    float32
 }

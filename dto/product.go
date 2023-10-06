@@ -11,7 +11,7 @@ type ProductRead struct {
 	Price     int
 	Weight    int
 	Image     string
-	Rating    int
+	Rating    float32
 }
 
 type ProductReadOne struct {
@@ -25,11 +25,11 @@ type ProductReadOne struct {
 	Price     int
 	Weight    int
 	Reviews   []ReviewBodyRead
-	Rating    int
+	Rating    float32
 }
 type ReviewBodyRead struct {
 	UserID  int
 	Name    string
 	Comment string
-	Rating  int
+	Rating  float32
 }
