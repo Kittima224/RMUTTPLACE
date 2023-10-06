@@ -56,6 +56,7 @@ func CreateReview(c *gin.Context) {
 	review.Rating = json.Rating
 	review.UserID = int(userId)
 	db.Conn.Create(&review)
+	db.Conn.Save(&product)
 	result := ReviewBodyRead{
 		ProductID: review.ProductID,
 		UserID:    review.UserID,

@@ -33,8 +33,8 @@ func Register(c *gin.Context) {
 	db.Conn.Where("email = ?", json.Email).First(&userExist)
 	if userExist.ID > 0 {
 		c.JSON(http.StatusOK, gin.H{
-			"status":  "ok",
-			"message": "User Exists",
+			"status":  "error",
+			"message": "User Does Not Exists",
 		})
 		return
 	}

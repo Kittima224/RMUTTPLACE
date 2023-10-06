@@ -50,7 +50,7 @@ func RegisterAdmin(c *gin.Context) {
 		return
 	}
 	if image != nil {
-		imagePath := "./uploads/admins/" + uuid.New().String()
+		imagePath := "./uploads/" + uuid.New().String()
 		c.SaveUploadedFile(image, imagePath)
 		os.Remove(admin.Image)
 		admin.Image = imagePath
@@ -87,7 +87,7 @@ func LoginAdmin(c *gin.Context) {
 	db.Conn.Where("email = ?", json.Email).First(&adminExist)
 	if adminExist.ID == 0 {
 		c.JSON(http.StatusOK, gin.H{
-			"status":  "ok",
+			"status":  "error",
 			"message": "Admin Does Not Exists",
 		})
 		return
