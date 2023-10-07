@@ -84,7 +84,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 	if image != nil {
-		imagePath := "./uploads/" + uuid.New().String()
+		imagePath := "./uploads/users/" + uuid.New().String()
 		c.SaveUploadedFile(image, imagePath)
 		os.Remove(user.Image)
 		user.Image = imagePath
@@ -110,7 +110,7 @@ func UpdateUserPhoto(c *gin.Context) {
 		return
 	}
 	if image != nil {
-		imagePath := "./uploads/" + uuid.New().String()
+		imagePath := "./uploads/users/" + uuid.New().String()
 		c.SaveUploadedFile(image, imagePath)
 		os.Remove(user.Image)
 		user.Image = imagePath
@@ -159,7 +159,7 @@ func Register(c *gin.Context) {
 		return
 	}
 	if image != nil {
-		imagePath := "./uploads/" + uuid.New().String()
+		imagePath := "./uploads/users/" + uuid.New().String()
 		c.SaveUploadedFile(image, imagePath)
 		os.Remove(user.Image)
 		user.Image = imagePath

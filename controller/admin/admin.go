@@ -51,7 +51,7 @@ func UpdateAdmin(c *gin.Context) {
 		return
 	}
 	if image != nil {
-		imagePath := "./uploads/" + uuid.New().String()
+		imagePath := "./uploads/admins/" + uuid.New().String()
 		c.SaveUploadedFile(image, imagePath)
 		os.Remove(admin.Image)
 		admin.Image = imagePath
