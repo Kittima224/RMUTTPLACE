@@ -2,6 +2,7 @@ package admin
 
 import (
 	"RmuttPlace/db"
+	"RmuttPlace/dto"
 	"RmuttPlace/model"
 	"errors"
 	"net/http"
@@ -10,10 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type ShipmentBody struct {
-	Name string `json:"name" binding:"required"`
-}
-
 func ShipmentCreate(c *gin.Context) {
 	adminId := c.MustGet("adminId").(float64)
 	var admin model.Admin
@@ -21,7 +18,7 @@ func ShipmentCreate(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	var json ShipmentBody
+	var json dto.ShipmentBody
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -81,7 +78,7 @@ func ShipmentUpdate(c *gin.Context) {
 	}
 	id := c.Param("id")
 	var shipment model.Shipment
-	var json ShipmentBody
+	var json dto.ShipmentBody
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -119,7 +116,7 @@ func ShipmentDel(c *gin.Context) {
 		return
 	} else {
 		db.Conn.Delete(&shipment).Where("id =?", json.Id)
-		c.JSON(http.StatusOK, gin.H{"message": "Delete user ?"})
+		c.JSON(http.StatusOK, gin.H{"message": "Delete shipment ?"})
 		return
 	}
 }

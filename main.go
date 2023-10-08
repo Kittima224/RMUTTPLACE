@@ -8,6 +8,7 @@ import (
 	UserController "RmuttPlace/controller/user"
 	"RmuttPlace/db"
 	"RmuttPlace/middleware"
+	"RmuttPlace/model"
 	"log"
 	"os"
 
@@ -47,6 +48,7 @@ func main() {
 	// }
 	db.InitDB()
 	db.Migrate()
+	db.Conn.AutoMigrate(&model.Cart{})
 
 	r := gin.Default()
 	r = gin.New()
@@ -55,7 +57,7 @@ func main() {
 	os.MkdirAll("uploads/stores", 0755)
 	os.MkdirAll("uploads/admins", 0755)
 	os.MkdirAll("uploads/users", 0755)
-	os.MkdirAll("uploads/file", 0755)
+	os.MkdirAll("uploads/files", 0755)
 	r.Static("/uploads", "./uploads")
 	r.POST("/user/register", AuthController.Register)
 	r.POST("/user/login", AuthController.Login)

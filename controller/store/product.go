@@ -159,7 +159,7 @@ func FindOneProductMyStore(c *gin.Context) {
 			ID:   product.Category.ID,
 			Name: product.Category.Name,
 		},
-		Store: model.StoreRead{
+		Store: dto.StoreRead{
 			ID:   product.Store.ID,
 			Name: product.Store.NameStore,
 		},

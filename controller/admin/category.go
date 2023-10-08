@@ -120,7 +120,7 @@ func CategoryDel(c *gin.Context) {
 		return
 	} else {
 		db.Conn.Delete(&category).Where("id =?", json.Id)
-		c.JSON(http.StatusOK, gin.H{"message": "Delete user ?"})
+		c.JSON(http.StatusOK, gin.H{"message": "Delete category ?"})
 		return
 	}
 }

@@ -15,11 +15,6 @@ type Store struct {
 	Zipcode     string
 	Password    string
 	Image       string
-	Status      bool //ยังไม่ใส่ค่า
+	Status      bool
 	File        string
-}
-
-type StoreRead struct {
-	ID   uint
-	Name string
 }

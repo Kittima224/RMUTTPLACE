@@ -16,18 +16,6 @@ type User struct {
 	Image       string
 }
 
-type Cart struct {
-	gorm.Model
-	UserID    uint
-	ProductID uint
-	Quantity  int
-	Product   Product `gorm:"foreignKey:ProductID"`
-	//Photos    PhotoProduct `gorm:"-"`
-}
 
-type Favorite struct {
-	gorm.Model
-	UserID    uint    `gorm:"foreignKey:UserID"`
-	ProductID uint    `gorm:"foreignKey:ProductID"`
-	Product   Product `gorm:"foreignKey:ProductID"`
-}
+
+

@@ -6,7 +6,14 @@ type CartResponse struct {
 	Quantity  int  `json:"quantity"`
 }
 type CartRequest struct {
-	UserID    uint `json:"userId"`
+	StoreID   uint `json:"storeId"`
 	ProductID uint `json:"productId"`
 	Quantity  int  `json:"quantity"`
+}
+type ReadProductInCart struct {
+	Store    StoreRead
+	ID       uint
+	Image    string
+	Name     string
+	Quantity int
 }

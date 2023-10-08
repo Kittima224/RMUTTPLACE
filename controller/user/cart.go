@@ -4,9 +4,11 @@ import (
 	"RmuttPlace/db"
 	"RmuttPlace/dto"
 	"RmuttPlace/model"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func AddCart(c *gin.Context) {
@@ -29,14 +31,21 @@ func AddCart(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "cart max"})
 		return
 	}
-	db.Conn.Find(&cart, "product_id = ? AND user_id = ?", json.ProductID, int(userId))
+	db.Conn.Find(&cart, "product_id = ? AND user_id = ?", json.ProductID, userId)
 	if uint(userId) == cart.UserID && json.ProductID == cart.ProductID {
-		db.Conn.Model(&cart).Where("product_id = ? AND user_id = ?", json.ProductID, int(userId)).Updates(model.Cart{UserID: uint(userId), ProductID: json.ProductID,
-			Quantity: json.Quantity + cart.Quantity})
-		c.JSON(http.StatusOK, gin.H{"cart ==": cart, "total": count})
+		db.Conn.Model(&cart).Where("product_id = ? AND user_id = ?", json.ProductID, userId)
+		cart.Quantity = cart.Quantity + json.Quantity
+		db.Conn.Save(&cart)
+		result := dto.CartResponse{
+			UserID:    cart.UserID,
+			ProductID: cart.ProductID,
+			Quantity:  cart.Quantity,
+		}
+		c.JSON(http.StatusOK, gin.H{"carts": result, "total": count})
 		return
 	} else {
 		cart.ProductID = json.ProductID
+		cart.StoreID = json.StoreID
 		cart.UserID = uint(userId)
 		cart.Quantity = json.Quantity
 		db.Conn.Create(&cart)
@@ -45,7 +54,7 @@ func AddCart(c *gin.Context) {
 			ProductID: cart.ProductID,
 			Quantity:  cart.Quantity,
 		}
-		c.JSON(http.StatusOK, gin.H{"cart": result, "total": count})
+		c.JSON(http.StatusOK, gin.H{"carts": result, "total": count + 1})
 		return
 	}
 }
@@ -53,8 +62,28 @@ func AddCart(c *gin.Context) {
 func MyCart(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	var carts []model.Cart
-	db.Conn.Model(&model.Cart{}).Preload("Product").Find(&carts, "user_id=?", uint(userId))
-	c.JSON(http.StatusOK, gin.H{"cart": carts})
+	var cart model.Cart
+	var store model.Store
+	db.Conn.Model(&model.Cart{}).Preload("Store").Preload("Product").Find(&carts, "user_id=?", uint(userId))
+
+	if err := db.Conn.Find(&store, "id =?", cart.StoreID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	var result []dto.ReadProductInCart
+	for _, p := range carts {
+		result = append(result, dto.ReadProductInCart{
+			Store: dto.StoreRead{
+				ID:   p.StoreID,
+				Name: p.Store.NameStore,
+			},
+			ID:       p.ProductID,
+			Image:    p.Product.Image,
+			Name:     p.Product.Name,
+			Quantity: p.Quantity,
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{"carts": result})
 }
 
 func DeleteProductMyCart(c *gin.Context) {

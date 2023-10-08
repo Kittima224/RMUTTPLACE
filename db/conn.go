@@ -30,12 +30,11 @@ func Migrate() {
 		&model.Product{},
 		&model.Review{},
 		&model.Shipment{},
-		&model.Cart{},
 		&model.Favorite{},
 		&model.Admin{},
 		&model.Order{},
 		&model.OrderItem{},
 		&model.Category{},
-		&model.Chart{},
+		&model.Cart{},
 	)
 }

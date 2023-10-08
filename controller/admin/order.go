@@ -2,6 +2,7 @@ package admin
 
 import (
 	"RmuttPlace/db"
+	"RmuttPlace/dto"
 	"RmuttPlace/model"
 	"errors"
 	"net/http"
@@ -43,25 +44,12 @@ func GetOrderAll(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-type OrderReadOne struct {
-	ID       uint
-	Store    model.StoreRead
-	Products []OrderItemRead
-}
-
 // type OrderItemRead struct {
 // 	Image    string
 // 	Name     string
 // 	Quantity int
 // 	Price    int
 // }
-
-type OrderItemRead struct {
-	ProductID uint
-	Image     string
-	Price     int
-	Quantity  int
-}
 
 func GetOrderOne(c *gin.Context) {
 	adminId := c.MustGet("adminId").(float64)
@@ -83,16 +71,16 @@ func GetOrderOne(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	result := OrderReadOne{
+	result := dto.OrderReadOne{
 		ID: order.ID,
-		Store: model.StoreRead{
+		Store: dto.StoreRead{
 			ID:   order.Store.ID,
 			Name: order.Store.NameStore,
 		},
 	}
-	var ot []OrderItemRead
+	var ot []dto.OrderItemRead
 	for _, o := range orderItems {
-		ot = append(ot, OrderItemRead{
+		ot = append(ot, dto.OrderItemRead{
 			ProductID: o.Product.ID,
 			Image:     o.Product.Image,
 			Price:     o.Product.Price,

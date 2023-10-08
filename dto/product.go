@@ -19,7 +19,7 @@ type ProductReadOne struct {
 	Name      string
 	Desc      string
 	Category  model.CategoryRead
-	Store     model.StoreRead
+	Store     StoreRead
 	Image     string
 	Available int
 	Price     int
