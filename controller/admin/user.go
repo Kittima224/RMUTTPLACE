@@ -15,12 +15,24 @@ import (
 )
 
 func ReadAllUser(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var users []model.User
 	db.Conn.Find(&users)
 	c.JSON(http.StatusOK, users)
 }
 
 func ReadOneUser(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var user model.User
 	if err := db.Conn.Find(&user, "id =?", id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
@@ -39,6 +51,12 @@ type Userid struct {
 }
 
 func DeleteUser(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var user model.User
 	var json Userid
 	if err := c.ShouldBindJSON(&json); err != nil {
@@ -67,6 +85,12 @@ type UpdateUserByAdmin struct {
 }
 
 func UpdateUser(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var user model.User
 	var json UpdateUserByAdmin
@@ -97,29 +121,6 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "update user", "user": user})
 }
 
-func UpdateUserPhoto(c *gin.Context) {
-	id := c.Param("id")
-	var user model.User
-	if err := db.Conn.Find(&user, "id =?", id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	image, err := c.FormFile("image")
-	if err != nil && !errors.Is(err, http.ErrMissingFile) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	if image != nil {
-		imagePath := "./uploads/users/" + uuid.New().String()
-		c.SaveUploadedFile(image, imagePath)
-		os.Remove(user.Image)
-		user.Image = imagePath
-	}
-	db.Conn.Save(&user)
-
-	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "update user", "user": user})
-}
-
 type CreateUserByAdminRequest struct {
 	Email       string `form:"email" binding:"required"`
 	Password    string `form:"password" binding:"required"`
@@ -133,6 +134,12 @@ type CreateUserByAdminRequest struct {
 }
 
 func Register(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var json CreateUserByAdminRequest
 	if err := c.ShouldBind(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

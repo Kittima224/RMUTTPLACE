@@ -82,7 +82,7 @@ func LoginStore(c *gin.Context) {
 		hmacSampleSecretStore = []byte(os.Getenv("JWT_SECRET_KEY_STORE"))
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"storeId": storeExist.ID,
-			"exp":     time.Now().Add(time.Hour * 1).Unix(),
+			"exp":     time.Now().Add(time.Hour * 8).Unix(),
 		})
 		// Sign and get the complete encoded token as a string using the secret
 		tokenString, err := token.SignedString(hmacSampleSecretStore)

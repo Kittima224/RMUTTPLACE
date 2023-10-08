@@ -15,9 +15,15 @@ type CategoryBody struct {
 }
 
 func Create(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
 	var json CategoryBody
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 	category := model.Category{
@@ -39,13 +45,28 @@ func Create(c *gin.Context) {
 }
 
 func CategoryAll(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
 	var categories []model.Category
-	db.Conn.Find(&categories)
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.Conn.Find(&categories).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, categories)
 }
 func CategoryOne(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
 	id := c.Param("id")
 	var category model.Category
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	if err := db.Conn.First(&category, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -54,8 +75,14 @@ func CategoryOne(c *gin.Context) {
 }
 func CategoryUpdate(c *gin.Context) {
 	id := c.Param("id")
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
 	var category model.Category
 	var json CategoryBody
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -75,10 +102,16 @@ type Categoryid struct {
 }
 
 func CategoryDel(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
 	var category model.Category
 	var json Categoryid
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 	db.Conn.Find(&category, "id =?", json.Id)

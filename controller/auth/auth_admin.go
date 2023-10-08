@@ -97,7 +97,7 @@ func LoginAdmin(c *gin.Context) {
 		hmacSampleSecretAdmin = []byte(os.Getenv("JWT_SECRET_KEY_ADMIN"))
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"adminId": adminExist.ID,
-			"exp":     time.Now().Add(time.Hour * 1).Unix(),
+			"exp":     time.Now().Add(time.Hour * 8).Unix(),
 		})
 		// Sign and get the complete encoded token as a string using the secret
 		tokenString, err := token.SignedString(hmacSampleSecretAdmin)

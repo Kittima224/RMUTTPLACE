@@ -15,6 +15,12 @@ type ShipmentBody struct {
 }
 
 func ShipmentCreate(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var json ShipmentBody
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -39,12 +45,24 @@ func ShipmentCreate(c *gin.Context) {
 }
 
 func ShipmentAll(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var shipment []model.Shipment
 	db.Conn.Find(&shipment)
 	c.JSON(http.StatusOK, shipment)
 }
 
 func ShipmentOne(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var shipment model.Shipment
 	if err := db.Conn.First(&shipment, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
@@ -55,6 +73,12 @@ func ShipmentOne(c *gin.Context) {
 }
 
 func ShipmentUpdate(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var shipment model.Shipment
 	var json ShipmentBody
@@ -77,6 +101,12 @@ type shipmentid struct {
 }
 
 func ShipmentDel(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var shipment model.Shipment
 	var json shipmentid
 	if err := c.ShouldBindJSON(&json); err != nil {

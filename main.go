@@ -4,6 +4,7 @@ import (
 	AdminController "RmuttPlace/controller/admin"
 	AuthController "RmuttPlace/controller/auth"
 	StoreController "RmuttPlace/controller/store"
+	UntokenController "RmuttPlace/controller/untoken"
 	UserController "RmuttPlace/controller/user"
 	"RmuttPlace/db"
 	"RmuttPlace/middleware"
@@ -63,13 +64,45 @@ func main() {
 	r.POST("/admin/register", AuthController.RegisterAdmin)
 	r.POST("/admin/login", AuthController.LoginAdmin)
 
-	r.GET("/product/findname", StoreController.FindNameProduct)
-
 	admin := r.Group("/admins", middleware.JWTAuthenAdmin())
 	admin.GET("/profile", AdminController.Profile)
 	admin.GET("/adminprofile", AdminController.GetProfile)
 	admin.PATCH("/adminprofile", AdminController.UpdateAdmin)
 	admin.GET("/all", AdminController.ReadAll)
+
+	admin.POST("/category", AdminController.Create)
+	admin.GET("/categories", AdminController.CategoryAll)
+	admin.GET("/category/:id", AdminController.CategoryOne)
+	admin.DELETE("/category", AdminController.CategoryDel)
+	admin.PATCH("/category/:id", AdminController.CategoryUpdate)
+
+	admin.GET("/products", AdminController.ReadProductAll)
+	admin.DELETE("/product/del", AdminController.DeleteProduct)
+	admin.GET("/product/:id", AdminController.ReadOneProduct)
+	admin.PATCH("/product/update/:id", AdminController.UpdateProduct)
+
+	admin.GET("/dashboard", AdminController.Dashboard)
+
+	admin.GET("/orders", AdminController.GetOrderAll)
+	admin.GET("/order/:id", AdminController.GetOrderOne)
+
+	admin.POST("/store", AdminController.StoreRegister)
+	admin.GET("/stores", AdminController.ReadAllStore)
+	admin.GET("/store/:id", AdminController.ReadOneStore)
+	admin.PATCH("/store/update/:id", AdminController.UpdateStore)
+	admin.DELETE("/store/del", AdminController.DeleteStore)
+
+	admin.POST("/shipment", AdminController.ShipmentCreate)
+	admin.GET("/shipments", AdminController.ShipmentAll)
+	admin.GET("/shipment/:id", AdminController.ShipmentOne)
+	admin.PATCH("/shipment/:id", AdminController.ShipmentUpdate)
+	admin.DELETE("/shipment", AdminController.ShipmentDel)
+
+	admin.POST("/user", AdminController.Register)
+	admin.GET("/users", AdminController.ReadAllUser)
+	admin.GET("/user/:id", AdminController.ReadOneUser)
+	admin.PATCH("/user/update/:id", AdminController.UpdateUser)
+	admin.DELETE("/user/del", AdminController.DeleteUser)
 
 	user := r.Group("/users", middleware.JWTAuthen())
 	user.GET("/readall", UserController.ReadAll)
@@ -110,44 +143,12 @@ func main() {
 	store.PATCH("/order/:id", StoreController.AddTrackingOrder)
 
 	store.GET("/dashboard", StoreController.DashboardStore)
+	//untoken
+	r.GET("/store/:id/products", UntokenController.ProductAllStore)
+	r.GET("/products", UntokenController.ReadProductAll) //ค้นชื่อสินค้า ชื่อหมสดหมู่categoty ค้นแท็กในdesc ได้
 
 	//admin //admin //admin //admin //admin //admin //admin
-	r.POST("/admin/store", AdminController.StoreRegister)
-	r.GET("/admin/stores", AdminController.ReadAllStore)
-	r.GET("/admin/store/:id", AdminController.ReadOneStore)
-	r.PATCH("/admin/store/update/:id", AdminController.UpdateStore)
-	r.DELETE("/admin/store/del", AdminController.DeleteStore)
-	r.GET("/admin/store/:id/products", AdminController.ProductAllStore)
 
-	r.GET("/admin/products", AdminController.ReadProductAll)
-
-	r.DELETE("/admin/product/del", AdminController.DeleteProduct)
-	r.GET("/admin/product/:id", AdminController.ReadOneProduct)
-	r.PATCH("/admin/product/update/:id", AdminController.UpdateProduct)
-
-	r.POST("/admin/user", AdminController.Register)
-	r.GET("/admin/users", AdminController.ReadAllUser)
-	r.GET("/admin/user/:id", AdminController.ReadOneUser)
-	r.PATCH("/admin/user/update/:id", AdminController.UpdateUser)
-	r.PATCH("/admin/user/update/:id/photo", AdminController.UpdateUserPhoto)
-	r.DELETE("/admin/user/del", AdminController.DeleteUser)
-
-	r.GET("/admin/categories", AdminController.CategoryAll)
-	r.GET("/admin/category/:id", AdminController.CategoryOne)
-	r.DELETE("/admin/category", AdminController.CategoryDel)
-	r.PATCH("/admin/category/:id", AdminController.CategoryUpdate)
-	r.POST("/admin/category", AdminController.Create)
-
-	r.POST("/admin/shipment", AdminController.ShipmentCreate)
-	r.GET("/admin/shipments", AdminController.ShipmentAll)
-	r.GET("/admin/shipment/:id", AdminController.ShipmentOne)
-	r.PATCH("/admin/shipment/:id", AdminController.ShipmentUpdate)
-	r.DELETE("/admin/shipment", AdminController.ShipmentDel)
-
-	r.GET("/admin/orders", AdminController.GetOrderAll)
-	r.GET("/admin/order/:id", AdminController.GetOrderOne)
-
-	r.GET("/admin/dashboard", AdminController.Dashboard)
 	//test
 
 	//http.ListenAndServe(":3000", nil)

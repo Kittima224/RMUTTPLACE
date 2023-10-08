@@ -15,7 +15,12 @@ import (
 )
 
 func DeleteStore(c *gin.Context) {
-	//adminId := c.MustGet("storeId").(float64)
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var user model.Store
 	var json Userid
 	if err := c.ShouldBindJSON(&json); err != nil {
@@ -46,6 +51,12 @@ type StoreUpdate struct {
 }
 
 func UpdateStore(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var store model.Store
 	var json StoreUpdate
@@ -81,12 +92,24 @@ func UpdateStore(c *gin.Context) {
 }
 
 func ReadAllStore(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var stores []model.Store
 	db.Conn.Find(&stores)
 	c.JSON(http.StatusOK, stores)
 }
 
 func ReadOneStore(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var store model.Store
 	if err := db.Conn.Find(&store, "id =?", id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
@@ -114,6 +137,12 @@ type CreateStoreByAdminRequest struct {
 }
 
 func StoreRegister(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var json CreateStoreByAdminRequest
 	if err := c.ShouldBind(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

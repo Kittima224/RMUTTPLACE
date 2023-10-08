@@ -23,6 +23,12 @@ type ProductUpdateBody struct {
 }
 
 func UpdateProduct(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var product model.Product
 	var json ProductUpdateBody
@@ -53,6 +59,12 @@ func UpdateProduct(c *gin.Context) {
 }
 
 func DeleteProduct(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var product model.Product
 	var json Userid
 	if err := c.ShouldBindJSON(&json); err != nil {
@@ -71,6 +83,12 @@ func DeleteProduct(c *gin.Context) {
 }
 
 func ReadOneProduct(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var product model.Product
 	var reviews []model.Review
@@ -120,20 +138,14 @@ func ReadProductAllMyStore(c *gin.Context) {
 	db.Conn.Find(&products, "store_id", storeId)
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "User Read Success", "products": products})
 }
-func FindNameProduct(c *gin.Context) {
-	search := c.Query("search")
-	category := c.Query("category")
-	var products []model.Product
-	if category != "" {
-		db.Conn.Find(&products, "category LIKE ?", "%"+category+"%")
-	}
-	if search != "" {
-		db.Conn.Find(&products, "name LIKE ? or desc LIKE? ", "%"+search+"%")
-	}
-	c.JSON(http.StatusOK, gin.H{"products": products})
 
-}
 func ReadProductAll(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var products []model.Product
 	db.Conn.Preload("Category").Find(&products)
 
@@ -154,32 +166,4 @@ func ReadProductAll(c *gin.Context) {
 		})
 	}
 	c.JSON(http.StatusOK, result)
-}
-
-func ProductAllStore(c *gin.Context) {
-	id := c.Param("id")
-	var products []model.Product
-	query := db.Conn.Preload("Category").Find(&products, "store_id", id)
-	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	var result []dto.ProductRead
-	for _, product := range products {
-		result = append(result, dto.ProductRead{
-			ID:        product.ID,
-			Name:      product.Name,
-			Desc:      product.Desc,
-			Available: product.Available,
-			Price:     product.Price,
-			Weight:    product.Weight,
-			Image:     product.Image,
-			Category: model.CategoryRead{
-				ID:   product.Category.ID,
-				Name: product.Category.Name,
-			},
-		})
-	}
-	c.JSON(http.StatusOK, result)
-
 }

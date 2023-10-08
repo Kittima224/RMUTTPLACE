@@ -1,17 +1,26 @@
 package admin
 
 import (
-	"RmuttPlace/db"
 
 	// "fmt"
-
+	"RmuttPlace/db"
+	"RmuttPlace/model"
+	"errors"
 	"net/http"
+
+	"gorm.io/gorm"
 
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
 )
 
 func Dashboard(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var totalPrice int
 	db.Conn.Raw("SELECT sum(order_items.quantity*products.price) from order_items JOIN products ON products.id = order_items.product_id").Scan(&totalPrice)
 

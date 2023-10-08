@@ -19,6 +19,12 @@ type OrderReadAll struct {
 }
 
 func GetOrderAll(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	var orders []model.Order
 	if err := db.Conn.Preload("Shipment").Find(&orders).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -58,6 +64,12 @@ type OrderItemRead struct {
 }
 
 func GetOrderOne(c *gin.Context) {
+	adminId := c.MustGet("adminId").(float64)
+	var admin model.Admin
+	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	id := c.Param("id")
 	var order model.Order
 	var orderItems []model.OrderItem

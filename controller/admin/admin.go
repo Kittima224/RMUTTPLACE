@@ -41,6 +41,10 @@ func UpdateAdmin(c *gin.Context) {
 	adminId := c.MustGet("adminId").(float64)
 	var admin model.Admin
 	var json AdminBody
+	if err := c.ShouldBind(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
