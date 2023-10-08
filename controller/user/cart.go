@@ -109,9 +109,15 @@ func UpdateQuantity(c *gin.Context) {
 	}
 	db.Conn.Find(&cart, "product_id = ? AND user_id = ?", json.ProductID, int(userId))
 	if uint(userId) == cart.UserID && json.ProductID == cart.ProductID {
-		db.Conn.Model(&cart).Where("product_id = ? AND user_id = ?", json.ProductID, int(userId)).Updates(model.Cart{UserID: uint(userId), ProductID: json.ProductID,
-			Quantity: json.Quantity})
-		c.JSON(http.StatusOK, gin.H{"cart": cart})
+		db.Conn.Model(&cart).Where("product_id = ? AND user_id = ?", json.ProductID, int(userId)).Update("quantity", cart.Quantity+json.Quantity)
+		result := dto.CartResponse{
+			UserID:    cart.UserID,
+			ProductID: cart.ProductID,
+			Quantity:  cart.Quantity,
+		}
+		c.JSON(http.StatusOK, gin.H{"cart": result})
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": "don't have product in cart"})
 	}
 }

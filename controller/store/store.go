@@ -67,7 +67,7 @@ func UpdateMyStore(c *gin.Context) {
 		return
 	}
 	if file != nil {
-		filePath := "./uploads/files" + uuid.New().String()
+		filePath := "./uploads/files/" + uuid.New().String()
 		c.SaveUploadedFile(file, filePath)
 		os.Remove(store.File)
 		store.File = filePath
