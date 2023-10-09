@@ -2,6 +2,7 @@ package store
 
 import (
 	"RmuttPlace/db"
+	"RmuttPlace/dto"
 	"RmuttPlace/model"
 	"errors"
 	"net/http"
@@ -10,10 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type OrderUpdateBody struct {
-	Tracking   string `json:"tracking"`
-	ShipmentID int    `json:"shipmentId"`
-}
 type AddTrackingOrderRead struct {
 	ID           uint
 	UserID       uint
@@ -22,36 +19,60 @@ type AddTrackingOrderRead struct {
 	ShipmentName string
 	Tracking     string
 }
+type OrderUpdateBody struct {
+	Tracking   string `json:"tracking"`
+	ShipmentID uint   `json:"shipmentId"`
+}
 
 func AddTrackingOrder(c *gin.Context) {
 	id := c.Param("id")
 	storeId := c.MustGet("storeId").(float64)
 	var order model.Order
-	var shipment model.Shipment
 	var json OrderUpdateBody
-	if err := c.ShouldBind(&json); err != nil {
+	var orderItems []model.OrderItem
+	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := db.Conn.Preload("Shipment").Find(&order, "store_id = ? AND id=?", uint(storeId), id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.Conn.Preload("Store").Preload("Shipment").Find(&order, "store_id = ? AND id=?", uint(storeId), id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	if err := db.Conn.Find(&shipment, "id=?", json.ShipmentID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	query2 := db.Conn.Preload("Product").Find(&orderItems, "order_id", id)
+	if err := query2.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	order.Tracking = json.Tracking
-	order.ShipmentID = uint(json.ShipmentID)
-	db.Conn.Save(&order)
-	result := AddTrackingOrderRead{
-		ID:         order.ID,
-		UserID:     order.UserID,
-		StoreID:    order.StoreID,
-		ShipmentID: uint(order.ShipmentID),
-		Tracking:   order.Tracking,
+	// order.Tracking = json.Tracking
+	// order.ShipmentID = json.ShipmentID
+	// db.Conn.Save(&order)
+	db.Conn.Model(&order).Updates(OrderUpdateBody{
+		Tracking:   json.Tracking,
+		ShipmentID: json.ShipmentID,
+	})
+	result := dto.OrderReadOne{
+		ID: order.ID,
+		Store: dto.StoreRead{
+			ID:   order.Store.ID,
+			Name: order.Store.NameStore,
+		},
+		Shipment: dto.ShipmentRead{
+			ID:   order.ShipmentID,
+			Name: order.Shipment.Name,
+		},
+		Tracking: order.Tracking,
 	}
-
+	var ot []dto.OrderItemRead
+	for _, o := range orderItems {
+		ot = append(ot, dto.OrderItemRead{
+			ID:       o.Product.ID,
+			Image:    o.Product.Image,
+			Price:    o.Product.Price,
+			Quantity: o.Quantity,
+			Name:     o.Product.Name,
+		})
+	}
+	result.Products = ot
 	c.JSON(http.StatusOK, result)
 
 }
@@ -59,31 +80,74 @@ func AddTrackingOrder(c *gin.Context) {
 func GetOrderAll(c *gin.Context) {
 	storeId := c.MustGet("storeId").(float64)
 	var order []model.Order
+	var store model.Store
+	if err := db.Conn.Find(&store, storeId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	if err := db.Conn.Find(&order, "store_id = ? ", storeId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, order)
+	var orders []model.Order
+	if err := db.Conn.Preload("Shipment").Find(&orders).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	var result []dto.OrderReadAll
+	for _, order := range orders {
+		result = append(result, dto.OrderReadAll{
+			ID:           order.ID,
+			UserID:       order.UserID,
+			ShipmentID:   uint(order.ShipmentID),
+			ShipmentName: order.Shipment.Name,
+			Tracking:     order.Tracking,
+		})
+	}
+	c.JSON(http.StatusOK, result)
 }
 func GetOrderOne(c *gin.Context) {
 	id := c.Param("id")
 	storeId := c.MustGet("storeId").(float64)
-	var order []model.Order
-	var orderItem []model.OrderItem
-	if err := db.Conn.Preload("Shipment").Find(&order, "store_id = ? and id=?", storeId, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	var store model.Store
+	if err := db.Conn.Find(&store, storeId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	for _, orders := range order {
-		var ot []model.OrderItem
-		query := db.Conn.Preload("Product").Find(&ot, "order_id=?", orders.ID)
-		if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-			return
-		}
-		orderItem = append(orderItem, ot...)
+	var order model.Order
+	var orderItems []model.OrderItem
+	if err := db.Conn.Preload("Store").Preload("Shipment").Find(&order, "store_id = ? and id=?", storeId, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
 	}
-
-	c.JSON(http.StatusOK, orderItem)
+	query2 := db.Conn.Preload("Product").Find(&orderItems, "order_id=?", id)
+	if err := query2.Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	result := dto.OrderReadOne{
+		ID: order.ID,
+		Store: dto.StoreRead{
+			ID:   order.Store.ID,
+			Name: order.Store.NameStore,
+		},
+		Shipment: dto.ShipmentRead{
+			ID:   order.ShipmentID,
+			Name: order.Shipment.Name,
+		},
+		Tracking: order.Tracking,
+	}
+	var ot []dto.OrderItemRead
+	for _, o := range orderItems {
+		ot = append(ot, dto.OrderItemRead{
+			ID:       o.Product.ID,
+			Image:    o.Product.Image,
+			Price:    o.Product.Price,
+			Quantity: o.Quantity,
+			Name:     o.Product.Name,
+		})
+	}
+	result.Products = ot
+	c.JSON(http.StatusOK, result)
 
 }

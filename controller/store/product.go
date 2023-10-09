@@ -53,7 +53,11 @@ func Create(c *gin.Context) {
 	}
 
 	db.Conn.Create(&product)
-
+	query2 := db.Conn.Preload("Store").Preload("Category").Find(&product, product.ID)
+	if err := query2.Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 	if product.ID > 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"status":    "ok",
@@ -66,7 +70,21 @@ func Create(c *gin.Context) {
 			"message": "product create failed",
 		})
 	}
-	c.JSON(http.StatusOK, gin.H{"product": product})
+	result := dto.ProductRead{
+		ID:   product.ID,
+		Name: product.Name,
+		Desc: product.Desc,
+		Category: model.CategoryRead{
+			ID:   uint(product.CategoryID),
+			Name: product.Category.Name,
+		},
+		Available: product.Available,
+		Price:     product.Price,
+		Weight:    product.Weight,
+		Image:     product.Image,
+		Rating:    product.Rating,
+	}
+	c.JSON(http.StatusOK, gin.H{"product": result})
 }
 
 type ProductUpdateBody struct {
@@ -108,7 +126,26 @@ func UpdateProductMystore(c *gin.Context) {
 	db.Conn.Model(&product).Updates(ProductUpdateBody{Name: json.Name,
 		Desc: json.Desc, CategoryID: json.CategoryID, Available: json.Available, Price: json.Price, Weight: json.Weight})
 
-	c.JSON(http.StatusOK, gin.H{"My product": storeId, "productid": product})
+	query := db.Conn.Preload("Store").Preload("Category").Find(&product, id)
+	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	result := dto.ProductRead{
+		ID:   product.ID,
+		Name: product.Name,
+		Desc: product.Desc,
+		Category: model.CategoryRead{
+			ID:   product.Category.ID,
+			Name: product.Category.Name,
+		},
+		Available: product.Available,
+		Price:     product.Price,
+		Weight:    product.Weight,
+		Image:     product.Image,
+		Rating:    product.Rating,
+	}
+	c.JSON(http.StatusOK, gin.H{"product": result})
 }
 
 func DeleteProductMyStore(c *gin.Context) {
@@ -163,6 +200,7 @@ func FindOneProductMyStore(c *gin.Context) {
 			ID:   product.Store.ID,
 			Name: product.Store.NameStore,
 		},
+		Rating: product.Rating,
 	}
 	var rv []dto.ReviewBodyRead
 	for _, r := range reviews {
@@ -210,6 +248,8 @@ func ReadProductAllMyStore(c *gin.Context) {
 				ID:   product.Category.ID,
 				Name: product.Category.Name,
 			},
+			Image:  product.Image,
+			Rating: product.Rating,
 		})
 	}
 	c.JSON(http.StatusOK, result)

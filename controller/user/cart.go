@@ -77,10 +77,13 @@ func MyCart(c *gin.Context) {
 				ID:   p.StoreID,
 				Name: p.Store.NameStore,
 			},
-			ID:       p.ProductID,
-			Image:    p.Product.Image,
-			Name:     p.Product.Name,
-			Quantity: p.Quantity,
+			Products: dto.OrderItemRead{
+				ID:       p.ProductID,
+				Name:     p.Product.Name,
+				Price:    p.Product.Price,
+				Image:    p.Product.Image,
+				Quantity: p.Quantity,
+			},
 		})
 	}
 	c.JSON(http.StatusOK, gin.H{"carts": result})

@@ -36,10 +36,20 @@ type OrderReadOne struct {
 	ID       uint
 	Store    StoreRead
 	Products []OrderItemRead
+	Shipment ShipmentRead
+	Tracking string
 }
 type OrderItemRead struct {
-	ProductID uint
-	Image     string
-	Price     int
-	Quantity  int
+	ID       uint
+	Name     string
+	Price    int
+	Image    string
+	Quantity int
+}
+type OrderReadAll struct {
+	ID           uint
+	UserID       uint
+	ShipmentID   uint
+	ShipmentName string
+	Tracking     string
 }

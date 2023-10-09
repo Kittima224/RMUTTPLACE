@@ -12,8 +12,5 @@ type CartRequest struct {
 }
 type ReadProductInCart struct {
 	Store    StoreRead
-	ID       uint
-	Image    string
-	Name     string
-	Quantity int
+	Products OrderItemRead
 }

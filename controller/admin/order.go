@@ -11,14 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type OrderReadAll struct {
-	ID           uint
-	UserID       uint
-	ShipmentID   uint
-	ShipmentName string
-	Tracking     string
-}
-
 func GetOrderAll(c *gin.Context) {
 	adminId := c.MustGet("adminId").(float64)
 	var admin model.Admin
@@ -31,9 +23,9 @@ func GetOrderAll(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	var result []OrderReadAll
+	var result []dto.OrderReadAll
 	for _, order := range orders {
-		result = append(result, OrderReadAll{
+		result = append(result, dto.OrderReadAll{
 			ID:           order.ID,
 			UserID:       order.UserID,
 			ShipmentID:   uint(order.ShipmentID),
@@ -81,10 +73,11 @@ func GetOrderOne(c *gin.Context) {
 	var ot []dto.OrderItemRead
 	for _, o := range orderItems {
 		ot = append(ot, dto.OrderItemRead{
-			ProductID: o.Product.ID,
-			Image:     o.Product.Image,
-			Price:     o.Product.Price,
-			Quantity:  o.Quantity,
+			ID:       o.Product.ID,
+			Image:    o.Product.Image,
+			Price:    o.Product.Price,
+			Quantity: o.Quantity,
+			Name:     o.Product.Name,
 		})
 	}
 	result.Products = ot

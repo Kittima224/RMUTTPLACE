@@ -8,7 +8,6 @@ import (
 	UserController "RmuttPlace/controller/user"
 	"RmuttPlace/db"
 	"RmuttPlace/middleware"
-	"RmuttPlace/model"
 	"log"
 	"os"
 
@@ -48,7 +47,6 @@ func main() {
 	// }
 	db.InitDB()
 	db.Migrate()
-	db.Conn.AutoMigrate(&model.Cart{})
 
 	r := gin.Default()
 	r = gin.New()
@@ -109,7 +107,6 @@ func main() {
 	user := r.Group("/users", middleware.JWTAuthen())
 	user.GET("/readall", UserController.ReadAll)
 	user.GET("/profile", UserController.Profile)
-	user.PATCH("/addinfo", UserController.AddProfileUser)
 	user.PATCH("/update", UserController.UpdateProfileUser)
 
 	user.POST("/mycart", UserController.AddCart)
