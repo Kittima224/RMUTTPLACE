@@ -107,9 +107,9 @@ func DashboardTest(c *gin.Context) {
 	db.Conn.Raw("SELECT DATE_FORMAT(ot.created_at,'%b') as x,SUM(ot.quantity*p.price) as y,DATE_FORMAT(ot.created_at,'%c') as id FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY x ORDER BY ot.id").Scan(&r)
 	for _, c := range r {
 		cc = append(cc, Chart{
-			X:  c.X,
-			ID: c.ID,
-			Y:  c.Y,
+			X: c.X,
+			// ID: c.ID,
+			// Y:  c.Y,
 		})
 	}
 
