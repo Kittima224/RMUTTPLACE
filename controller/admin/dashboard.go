@@ -34,18 +34,17 @@ func Dashboard(c *gin.Context) {
 	db.Conn.Raw("SELECT COUNT(id) from products WHERE deleted_at is null").Scan(&cproduct)
 
 	type Chart struct {
-		ID int    `json:"id"`
-		X  string `json:"x"`
-		Y  int    `json:"y"`
+		X string `json:"x"`
+		Y int    `json:"y"`
 	}
 	var r []Chart
 	var cc []Chart
-	db.Conn.Raw("SELECT to_char(ot.created_at,'MON') as x,sum(ot.quantity*p.price) as y,to_char(ot.created_at,'MM') as id FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY to_char(ot.created_at,'MON')").Scan(&r)
+	db.Conn.Raw("SELECT to_char(ot.created_at,'MON') as x,sum(ot.quantity*p.price) as y FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY to_char(ot.created_at,'MON') order by to_char(ot.created_at,'MM')").Scan(&r)
 	for _, c := range r {
 		cc = append(cc, Chart{
-			X:  c.X,
-			ID: c.ID,
-			Y:  c.Y,
+			X: c.X,
+
+			Y: c.Y,
 		})
 	}
 	var j []Chart
