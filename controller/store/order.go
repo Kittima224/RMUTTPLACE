@@ -43,9 +43,9 @@ func AddTrackingOrder(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	// order.Tracking = json.Tracking
-	// order.ShipmentID = json.ShipmentID
-	// db.Conn.Save(&order)
+	order.Tracking = json.Tracking
+	order.ShipmentID = json.ShipmentID
+	db.Conn.Save(&order)
 	db.Conn.Model(&order).Updates(OrderUpdateBody{
 		Tracking:   json.Tracking,
 		ShipmentID: json.ShipmentID,
