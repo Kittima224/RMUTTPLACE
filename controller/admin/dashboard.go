@@ -34,12 +34,12 @@ func Dashboard(c *gin.Context) {
 	db.Conn.Raw("SELECT COUNT(id) from products WHERE deleted_at is null").Scan(&cproduct)
 
 	type Chart struct {
-		ID    int    `json:"id"`
-		Name  string `json:"name"`
-		Value int    `json:"value"`
+		ID int    `json:"id"`
+		X  string `json:"x"`
+		Y  int    `json:"y"`
 	}
 	var r []Chart
-	db.Conn.Raw("SELECT DATE_FORMAT(ot.created_at,'%b') as name,SUM(ot.quantity*p.price) as value,DATE_FORMAT(ot.created_at,'%c') as id FROM order_items as ot JOIN products as p ON ot.product_id=p.id GROUP BY DATE_FORMAT(created_at,'%b');").Scan(&r)
+	db.Conn.Raw("SELECT DATE_FORMAT(ot.created_at,'%b') as x,SUM(ot.quantity*p.price) as y,DATE_FORMAT(ot.created_at,'%c') as id FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY x ORDER BY ot.id").Scan(&r)
 
 	var p []Chart
 	db.Conn.Raw("SELECT categories.id as id,categories.name as name ,COUNT(products.id) as value from products JOIN categories on products.category_id = categories.id WHERE products.deleted_at is null GROUP by products.category_id").Scan(&p)
@@ -83,6 +83,9 @@ func DashboardTest(c *gin.Context) {
 	}
 	var r []Chart
 	db.Conn.Raw("SELECT DATE_FORMAT(ot.created_at,'%b') as x,SUM(ot.quantity*p.price) as y,DATE_FORMAT(ot.created_at,'%c') as id FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY x ORDER BY ot.id").Scan(&r)
+	// r = append(r, Chart{
+	// 	ID: ,
+	// })
 
 	type Pie struct {
 		ID    int    `json:"id"`
