@@ -48,8 +48,15 @@ func Dashboard(c *gin.Context) {
 			Y:  c.Y,
 		})
 	}
-	var j int
-	db.Conn.Raw("select sum(ot.quantity*p.price) as x from order_items as ot JOIN products as p on ot.product_id=p.id group by to_char(ot.created_at,'MM')").Scan(&j)
+	var j []Chart
+	var gg []Chart
+	db.Conn.Raw("select sum(ot.quantity*p.price) as y,to_char(ot.created_at,'MON') as x from order_items as ot JOIN products as p on ot.product_id=p.id group by to_char(ot.created_at,'MM')").Scan(&j)
+	for _, g := range j {
+		gg = append(gg, Chart{
+			X: g.X,
+			Y: g.Y,
+		})
+	}
 
 	type Pie struct {
 		ID    int    `json:"id"`
@@ -74,7 +81,7 @@ func Dashboard(c *gin.Context) {
 		"count_product": humanize.Commaf(float64(cproduct)),
 		"pie":           pp,
 		"chart":         cc,
-		"sum":           j,
+		"test":          gg,
 	})
 }
 
