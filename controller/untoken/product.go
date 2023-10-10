@@ -43,8 +43,9 @@ func ReadProductAll(c *gin.Context) {
 	search := c.Query("search")
 	category := c.Query("category")
 	var products []model.Product
-	db.Conn.Preload("Category").Find(&products)
 
+	db.Conn.Preload("Category").Raw("SELECT * from products JOIN stores on products.store_id=stores.id WHERE stores.status = true").Scan(&products)
+	db.Conn.Preload("Category").Find(&products)
 	if category != "" {
 		db.Conn.Find(&products, "category LIKE ?", "%"+category+"%")
 	}
@@ -70,12 +71,10 @@ func ReadProductAll(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// แก้
-func FindOneProductMyStore(c *gin.Context) {
+func FindOneProduct(c *gin.Context) {
 	id := c.Param("id")
-	storeId := c.MustGet("storeId").(float64)
+
 	var product model.Product
-	var store model.Store
 	var reviews []model.Review
 	query := db.Conn.Preload("Store").Preload("Category").Find(&product, id)
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
@@ -84,10 +83,6 @@ func FindOneProductMyStore(c *gin.Context) {
 	}
 	query2 := db.Conn.Preload("User").Find(&reviews, "product_id", id)
 	if err := query2.Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	if err := db.Conn.Find(&store, "id =?", storeId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -108,6 +103,7 @@ func FindOneProductMyStore(c *gin.Context) {
 			ID:   product.Store.ID,
 			Name: product.Store.NameStore,
 		},
+		Rating: product.Rating,
 	}
 	var rv []dto.ReviewBodyRead
 	for _, r := range reviews {

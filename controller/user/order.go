@@ -14,14 +14,24 @@ import (
 func CreateOrder(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	var json dto.OrderRequest
+	var ot dto.OrderItemRequest
 	var user model.User
 	var order model.Order
+	var product model.Product
 	if err := db.Conn.First(&user, userId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.Conn.Find(&product, "id =?", ot.ProductID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	if product.StoreID != int(json.StoreID) {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Products must come from the same store."})
 		return
 	}
 	var orderItems []model.OrderItem
@@ -59,6 +69,7 @@ func MyOrderAll(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+
 	var result []dto.OrderReadAll
 	for _, order := range orders {
 		result = append(result, dto.OrderReadAll{

@@ -64,7 +64,7 @@ func MyCart(c *gin.Context) {
 	var carts []model.Cart
 	var cart model.Cart
 	var store model.Store
-	db.Conn.Model(&model.Cart{}).Preload("Store").Preload("Product").Find(&carts, "user_id=?", uint(userId))
+	db.Conn.Model(&model.Cart{}).Preload("Store").Preload("Product").Find(&carts, "user_id=?", uint(userId)).Group("store_id")
 
 	if err := db.Conn.Find(&store, "id =?", cart.StoreID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

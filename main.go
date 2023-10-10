@@ -145,7 +145,8 @@ func main() {
 	//untoken
 	r.GET("/store/:id/products", UntokenController.ProductAllStore)
 	r.GET("/products", UntokenController.ReadProductAll) //ค้นชื่อสินค้า ชื่อหมสดหมู่categoty ค้นแท็กในdesc ได้
-
+	r.GET("/product/:id", UntokenController.FindOneProduct)
+	r.GET("/store/:id", UntokenController.ReadOneStore)
 	//admin //admin //admin //admin //admin //admin //admin
 
 	//test
