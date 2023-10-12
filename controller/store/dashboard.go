@@ -43,7 +43,7 @@ func DashboardStore(c *gin.Context) {
 	}
 	var pie []Pie
 	var pp []Pie
-	db.Conn.Raw("SELECT categories.id as id,categories.name as name ,COUNT(products.id) as value from products JOIN categories on products.category_id = categories.id JOIN stores on stores.id=@Store WHERE products.deleted_at is null and stores.id=5 GROUP by categories.id", StoreArgument{Store: uint(storeId)}).Scan(&pie)
+	db.Conn.Raw("SELECT categories.id as id,categories.name as name ,COUNT(products.id) as value from products JOIN categories on products.category_id = categories.id JOIN stores on stores.id=products.store_id WHERE products.deleted_at is null and stores.id=@Store GROUP by categories.id", StoreArgument{Store: uint(storeId)}).Scan(&pie)
 	for _, p := range pie {
 		pp = append(pp, Pie{
 			ID:    p.ID,
