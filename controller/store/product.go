@@ -37,7 +37,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	product := model.Product{Name: json.Name, Desc: json.Desc, StoreID: int(storeId),
+	product := model.Product{Name: json.Name, Description: json.Desc, StoreID: int(storeId),
 		CategoryID: json.CategoryID,
 		Available:  json.Available, Price: json.Price,
 		Weight: json.Weight}
@@ -73,7 +73,7 @@ func Create(c *gin.Context) {
 	result := dto.ProductRead{
 		ID:   product.ID,
 		Name: product.Name,
-		Desc: product.Desc,
+		Desc: product.Description,
 		Category: model.CategoryRead{
 			ID:   uint(product.CategoryID),
 			Name: product.Category.Name,
@@ -134,7 +134,7 @@ func UpdateProductMystore(c *gin.Context) {
 	result := dto.ProductRead{
 		ID:   product.ID,
 		Name: product.Name,
-		Desc: product.Desc,
+		Desc: product.Description,
 		Category: model.CategoryRead{
 			ID:   product.Category.ID,
 			Name: product.Category.Name,
@@ -187,7 +187,7 @@ func FindOneProductMyStore(c *gin.Context) {
 	result := dto.ProductReadOne{
 		ID:        product.ID,
 		Name:      product.Name,
-		Desc:      product.Desc,
+		Desc:      product.Description,
 		Available: product.Available,
 		Image:     product.Image,
 		Price:     product.Price,
@@ -240,7 +240,7 @@ func ReadProductAllMyStore(c *gin.Context) {
 		result = append(result, dto.ProductRead{
 			ID:        product.ID,
 			Name:      product.Name,
-			Desc:      product.Desc,
+			Desc:      product.Description,
 			Available: product.Available,
 			Price:     product.Price,
 			Weight:    product.Weight,
@@ -270,7 +270,7 @@ func FindNameProduct(c *gin.Context) {
 		result = append(result, dto.ProductRead{
 			ID:        product.ID,
 			Name:      product.Name,
-			Desc:      product.Desc,
+			Desc:      product.Description,
 			Available: product.Available,
 			Price:     product.Price,
 			Weight:    product.Weight,

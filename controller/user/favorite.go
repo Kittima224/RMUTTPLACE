@@ -87,7 +87,7 @@ func MyFav(c *gin.Context) {
 		result = append(result, dto.ProductRead{
 			ID:        product.ProductID,
 			Name:      product.Product.Name,
-			Desc:      product.Product.Desc,
+			Desc:      product.Product.Description,
 			Available: product.Product.Available,
 			Price:     product.Product.Price,
 			Weight:    product.Product.Weight,

@@ -105,7 +105,7 @@ func ReadOneProduct(c *gin.Context) {
 	result := dto.ProductReadOne{
 		ID:        product.ID,
 		Name:      product.Name,
-		Desc:      product.Desc,
+		Desc:      product.Description,
 		Available: product.Available,
 		Image:     product.Image,
 		Price:     product.Price,
@@ -154,7 +154,7 @@ func ReadProductAll(c *gin.Context) {
 		result = append(result, dto.ProductRead{
 			ID:        product.ID,
 			Name:      product.Name,
-			Desc:      product.Desc,
+			Desc:      product.Description,
 			Available: product.Available,
 			Price:     product.Price,
 			Weight:    product.Weight,

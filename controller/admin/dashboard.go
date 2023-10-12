@@ -80,7 +80,6 @@ func Dashboard(c *gin.Context) {
 		"count_product": humanize.Commaf(float64(cproduct)),
 		"pie":           pp,
 		"chart":         cc,
-		"test":          gg,
 	})
 }
 

@@ -24,7 +24,7 @@ func ProductAllStore(c *gin.Context) {
 		result = append(result, dto.ProductRead{
 			ID:        product.ID,
 			Name:      product.Name,
-			Desc:      product.Desc,
+			Desc:      product.Description,
 			Available: product.Available,
 			Price:     product.Price,
 			Weight:    product.Weight,
@@ -41,23 +41,28 @@ func ProductAllStore(c *gin.Context) {
 }
 func ReadProductAll(c *gin.Context) {
 	search := c.Query("search")
-	category := c.Query("category")
+	categoryid := c.Query("categoryid")
+	desc := c.Query("desc")
 	var products []model.Product
 
-	db.Conn.Preload("Category").Raw("SELECT * from products JOIN stores on products.store_id=stores.id WHERE stores.status = true").Scan(&products)
-	db.Conn.Preload("Category").Find(&products)
-	if category != "" {
-		db.Conn.Find(&products, "category LIKE ?", "%"+category+"%")
+	query := db.Conn.Preload("Category")
+	if categoryid != "" {
+		query = query.Where("category_id=?", categoryid)
 	}
 	if search != "" {
-		db.Conn.Find(&products, "name LIKE ? or desc LIKE? ", "%"+search+"%")
+
+		query = query.Where("name LIKE ?", "%"+search+"%")
 	}
+	if desc != "" {
+		query = query.Where("description like ?", "%"+desc+"%")
+	}
+	query.Raw("SELECT * FROM products JOIN stores on products.store_id=stores.id WHERE stores.status=true").Scan(&products)
 	var result []dto.ProductRead
 	for _, product := range products {
 		result = append(result, dto.ProductRead{
 			ID:        product.ID,
 			Name:      product.Name,
-			Desc:      product.Desc,
+			Desc:      product.Description,
 			Available: product.Available,
 			Price:     product.Price,
 			Weight:    product.Weight,
@@ -66,6 +71,7 @@ func ReadProductAll(c *gin.Context) {
 				ID:   product.Category.ID,
 				Name: product.Category.Name,
 			},
+			Rating: product.Rating,
 		})
 	}
 	c.JSON(http.StatusOK, result)
@@ -90,7 +96,7 @@ func FindOneProduct(c *gin.Context) {
 	result := dto.ProductReadOne{
 		ID:        product.ID,
 		Name:      product.Name,
-		Desc:      product.Desc,
+		Desc:      product.Description,
 		Available: product.Available,
 		Image:     product.Image,
 		Price:     product.Price,

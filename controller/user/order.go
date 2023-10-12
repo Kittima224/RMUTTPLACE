@@ -14,10 +14,10 @@ import (
 func CreateOrder(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	var json dto.OrderRequest
-	var ot dto.OrderItemRequest
+	//var product model.Product
 	var user model.User
 	var order model.Order
-	var product model.Product
+
 	if err := db.Conn.First(&user, userId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -26,14 +26,7 @@ func CreateOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := db.Conn.Find(&product, "id =?", ot.ProductID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	if product.StoreID != int(json.StoreID) {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Products must come from the same store."})
-		return
-	}
+
 	var orderItems []model.OrderItem
 	for _, product := range json.Carts {
 		orderItems = append(orderItems, model.OrderItem{
@@ -45,6 +38,7 @@ func CreateOrder(c *gin.Context) {
 	order.UserID = uint(userId)
 	order.Products = orderItems
 	order.ShipmentID = 3
+
 	if err := db.Conn.Create(&order).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -52,6 +46,19 @@ func CreateOrder(c *gin.Context) {
 	result := dto.OrderRead{
 		OrderID:    order.ID,
 		ShipmentID: order.ShipmentID,
+	}
+	db.Conn.Find(&orderItems, "order_id=?", order.ID)
+
+	var Available []struct {
+		ID        uint
+		Available int
+	}
+	var product model.Product
+
+	db.Conn.Raw("SELECT  products.id as id,(products.available-order_items.quantity) as available FROM orders JOIN order_items on order_items.order_id=orders.id JOIN products on order_items.product_id=products.id WHERE orders.id=?", order.ID).Scan(&Available)
+
+	for _, item := range Available {
+		db.Conn.Raw("UPDATE PRODUCTS SET AVAILABLE =? WHERE ID=?", item.Available, item.ID).Scan(&product)
 	}
 	c.JSON(http.StatusOK, gin.H{"order": result})
 }
