@@ -79,18 +79,13 @@ func AddTrackingOrder(c *gin.Context) {
 
 func GetOrderAll(c *gin.Context) {
 	storeId := c.MustGet("storeId").(float64)
-	var order []model.Order
+	var orders []model.Order
 	var store model.Store
 	if err := db.Conn.Find(&store, storeId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	if err := db.Conn.Find(&order, "store_id = ? ", storeId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	var orders []model.Order
-	if err := db.Conn.Preload("Shipment").Find(&orders).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.Conn.Preload("Shipment").Find(&orders, "store_id = ? ", storeId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
