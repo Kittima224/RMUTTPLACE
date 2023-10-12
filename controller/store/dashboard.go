@@ -29,7 +29,7 @@ func DashboardStore(c *gin.Context) {
 	}
 	var r []Chart
 	var cc []Chart
-	db.Conn.Raw("SELECT to_char(ot.created_at,'MON') as x,SUM(ot.quantity*p.price) as y FROM `order_items` as ot JOIN `products` as p ON ot.product_id=p.id WHERE p.store_id=@Store GROUP BY to_char(ot.created_at,'MON')", StoreArgument{Store: uint(storeId)}).Scan(&r)
+	db.Conn.Raw("SELECT to_char(ot.created_at,'MON') as x,SUM(ot.quantity*p.price) as y FROM order_items as ot JOIN products as p ON ot.product_id=p.id WHERE p.store_id=@Store GROUP BY to_char(ot.created_at,'MON')", StoreArgument{Store: uint(storeId)}).Scan(&r)
 	for _, c := range r {
 		cc = append(cc, Chart{
 			X: c.X,
