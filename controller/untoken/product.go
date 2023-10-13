@@ -56,7 +56,8 @@ func ReadProductAll(c *gin.Context) {
 	if desc != "" {
 		query = query.Where("description like ?", "%"+desc+"%")
 	}
-	//query.Raw("SELECT * FROM products JOIN stores on products.store_id=stores.id WHERE stores.status=true").Scan(&products)
+	query.Find(&products)
+	query.Raw("SELECT * FROM products JOIN stores on products.store_id=stores.id WHERE stores.status=true").Scan(&products)
 	var result []dto.ProductRead
 	for _, product := range products {
 		result = append(result, dto.ProductRead{
@@ -72,6 +73,10 @@ func ReadProductAll(c *gin.Context) {
 				Name: product.Category.Name,
 			},
 			Rating: product.Rating,
+			Store: dto.StoreRead{
+				ID:   product.Store.ID,
+				Name: product.Store.NameStore,
+			},
 		})
 	}
 	c.JSON(http.StatusOK, result)
@@ -117,6 +122,11 @@ func FindOneProduct(c *gin.Context) {
 			UserID:  r.UserID,
 			Comment: r.Comment,
 			Rating:  r.Rating,
+			User: dto.UserReview{
+				ID:    r.User.ID,
+				Name:  r.User.UserName,
+				Image: r.User.Image,
+			},
 		})
 	}
 	result.Reviews = rv

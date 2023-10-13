@@ -12,6 +12,7 @@ type ProductRead struct {
 	Weight    int
 	Image     string
 	Rating    float32
+	Store     StoreRead
 }
 
 type ProductReadOne struct {
@@ -32,9 +33,4 @@ type ReviewBodyRead struct {
 	Comment string
 	Rating  float32
 	User    UserReview
-}
-type UserReview struct {
-	ID    uint
-	Name  string
-	Image string
 }
