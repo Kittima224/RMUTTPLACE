@@ -29,7 +29,12 @@ type ProductReadOne struct {
 }
 type ReviewBodyRead struct {
 	UserID  int
-	Name    string
 	Comment string
 	Rating  float32
+	User    UserReview
+}
+type UserReview struct {
+	ID    uint
+	Name  string
+	Image string
 }

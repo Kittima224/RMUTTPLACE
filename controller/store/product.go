@@ -205,8 +205,12 @@ func FindOneProductMyStore(c *gin.Context) {
 	var rv []dto.ReviewBodyRead
 	for _, r := range reviews {
 		rv = append(rv, dto.ReviewBodyRead{
-			UserID:  r.UserID,
-			Name:    r.User.UserName,
+			UserID: r.UserID,
+			User: dto.UserReview{
+				ID:    r.User.ID,
+				Name:  r.User.UserName,
+				Image: r.User.Image,
+			},
 			Comment: r.Comment,
 			Rating:  r.Rating,
 		})

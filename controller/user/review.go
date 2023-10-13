@@ -5,7 +5,6 @@ import (
 	"RmuttPlace/model"
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -18,7 +17,6 @@ type ReviewBody struct {
 type ReviewBodyRead struct {
 	ProductID int
 	UserID    int
-	UserName  string
 	Comment   string
 	Rating    float32
 }
@@ -29,7 +27,7 @@ func CreateReview(c *gin.Context) {
 	var json ReviewBody
 	var product model.Product
 	var review model.Review
-	var user model.User
+
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -44,31 +42,27 @@ func CreateReview(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	query3 := db.Conn.Preload("User").Find(&user, "id=?", userId)
-	if err := query3.Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
 	var count int64
 	var s int
 	if err := db.Conn.Model(&model.Review{}).Select("sum(rating) as s").Where("product_id = ?", id).Count(&count).First(&s).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	n, _ := strconv.Atoi(id)
-	product.Rating = (float32(s) + json.Rating) / (float32(count) + 1)
-	review.ProductID = n
+	// n, _ := strconv.Atoi(id)
+	// product.Rating = (float32(s) + json.Rating) / (float32(count) + 1)
+	review.ProductID = int(product.ID)
 	review.Comment = json.Comment
 	review.Rating = json.Rating
 	review.UserID = int(userId)
 	db.Conn.Create(&review)
-	db.Conn.Save(&product)
+	// db.Conn.Save(&product)
 	result := ReviewBodyRead{
 		ProductID: review.ProductID,
 		UserID:    review.UserID,
-		UserName:  review.User.UserName,
 		Comment:   review.Comment,
 		Rating:    review.Rating,
 	}
 	c.JSON(http.StatusOK, result)
+
+	c.JSON(http.StatusOK, gin.H{"test": userId})
 }
