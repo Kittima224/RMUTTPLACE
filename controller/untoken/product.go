@@ -165,41 +165,41 @@ func FifteenProduct(c *gin.Context) {
 }
 func BestSeller(c *gin.Context) {
 	var n []int
-	//var products []model.Product
+	var products []model.Product
 	db.Conn.Raw("SELECT ot.product_id as n FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY ot.product_id ORDER by COUNT(ot.product_id) DESC LIMIT 10").Scan(&n)
-	// var result []dto.ProductRead
-	// db.Conn.Find(&products, p)
-	// for _, product := range products {
-	// 	result = append(result, dto.ProductRead{
-	// 		ID:        product.ID,
-	// 		Name:      product.Name,
-	// 		Desc:      product.Description,
-	// 		Available: product.Available,
-	// 		Price:     product.Price,
-	// 		Weight:    product.Weight,
-	// 		Image:     product.Image,
-	// 		Category: model.CategoryRead{
-	// 			ID:   product.Category.ID,
-	// 			Name: product.Category.Name,
-	// 		},
-	// 		Rating: product.Rating,
-	// 		Store: dto.StoreRead{
-	// 			ID:   product.Store.ID,
-	// 			Name: product.Store.NameStore,
-	// 		},
-	// 	})
-	// }
+	var result []dto.ProductRead
+	db.Conn.Preload("Store").Find(&products, n)
+	for _, product := range products {
+		result = append(result, dto.ProductRead{
+			ID:        product.ID,
+			Name:      product.Name,
+			Desc:      product.Description,
+			Available: product.Available,
+			Price:     product.Price,
+			Weight:    product.Weight,
+			Image:     product.Image,
+			Category: model.CategoryRead{
+				ID:   product.Category.ID,
+				Name: product.Category.Name,
+			},
+			Rating: product.Rating,
+			Store: dto.StoreRead{
+				ID:   product.Store.ID,
+				Name: product.Store.NameStore,
+			},
+		})
+	}
 
-	// c.JSON(http.StatusOK, result)
-	c.JSON(http.StatusOK, n)
+	c.JSON(http.StatusOK, result)
+
 }
 
 func NotSeller(c *gin.Context) {
-	var p []int
+	var n []int
 	var products []model.Product
-	db.Conn.Raw("SELECT ot.product_id,COUNT(ot.product_id) as num,p.name as name FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY ot.product_id ORDER by num ASC LIMIT 10").Scan(&p)
+	db.Conn.Raw("SELECT ot.product_id as n FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY ot.product_id ORDER by COUNT(ot.product_id) ASC LIMIT 10").Scan(&n)
 	var result []dto.ProductRead
-	db.Conn.Find(&products, p)
+	db.Conn.Preload("Store").Find(&products, n)
 	for _, product := range products {
 		result = append(result, dto.ProductRead{
 			ID:        product.ID,
