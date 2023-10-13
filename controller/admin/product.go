@@ -145,6 +145,7 @@ func ReadProductAllMyStore(c *gin.Context) {
 
 func ReadProductAll(c *gin.Context) {
 	adminId := c.MustGet("adminId").(float64)
+
 	var admin model.Admin
 	if err := db.Conn.Find(&admin, adminId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

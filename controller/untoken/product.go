@@ -44,8 +44,7 @@ func ReadProductAll(c *gin.Context) {
 	categoryid := c.Query("categoryid")
 	desc := c.Query("desc")
 	var products []model.Product
-
-	query := db.Conn.Preload("Category")
+	query := db.Conn.Preload("Category").Preload("Store")
 	if categoryid != "" {
 		query = query.Where("category_id=?", categoryid)
 	}
@@ -57,7 +56,7 @@ func ReadProductAll(c *gin.Context) {
 		query = query.Where("description like ?", "%"+desc+"%")
 	}
 	query.Find(&products)
-	query.Raw("SELECT * FROM products JOIN stores on products.store_id=stores.id WHERE stores.status=true").Scan(&products)
+
 	var result []dto.ProductRead
 	for _, product := range products {
 		result = append(result, dto.ProductRead{
