@@ -137,7 +137,7 @@ func FindOneProduct(c *gin.Context) {
 func FifteenProduct(c *gin.Context) {
 	var p []int
 	var products []model.Product
-	db.Conn.Raw("SELECT id as p FROM products ORDER BY LIMIT 15").Scan(p)
+	db.Conn.Raw("SELECT random(id) as p FROM products LIMIT 15").Scan(p)
 	var result []dto.ProductRead
 	db.Conn.Find(&products, p)
 	for _, product := range products {
