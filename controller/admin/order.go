@@ -36,13 +36,6 @@ func GetOrderAll(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// type OrderItemRead struct {
-// 	Image    string
-// 	Name     string
-// 	Quantity int
-// 	Price    int
-// }
-
 func GetOrderOne(c *gin.Context) {
 	adminId := c.MustGet("adminId").(float64)
 	var admin model.Admin
@@ -53,7 +46,7 @@ func GetOrderOne(c *gin.Context) {
 	id := c.Param("id")
 	var order model.Order
 	var orderItems []model.OrderItem
-	query := db.Conn.Preload("Store").Find(&order, id)
+	query := db.Conn.Preload("User").Preload("Store").Find(&order, id)
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -68,6 +61,11 @@ func GetOrderOne(c *gin.Context) {
 		Store: dto.StoreRead{
 			ID:   order.Store.ID,
 			Name: order.Store.NameStore,
+		},
+		User: dto.UserReview{
+			ID:    order.User.ID,
+			Name:  order.User.UserName,
+			Image: order.User.Image,
 		},
 	}
 	var ot []dto.OrderItemRead

@@ -38,6 +38,7 @@ type OrderReadOne struct {
 	Products []OrderItemRead
 	Shipment ShipmentRead
 	Tracking string
+	User     UserReview
 }
 type OrderItemRead struct {
 	ID       uint

@@ -11,6 +11,7 @@ type Order struct {
 	Store      Store
 	ShipmentID uint
 	Shipment   Shipment
+	User       User
 }
 
 type OrderItem struct {
