@@ -223,21 +223,20 @@ func FindOneProductMyStore(c *gin.Context) {
 func ReadProductAllMyStore(c *gin.Context) {
 	storeId := c.MustGet("storeId").(float64)
 	search := c.Query("search")
-	category := c.Query("category")
+	categoryid := c.Query("categoryid")
 	var store model.Store
-	var products []model.Product
-	if category != "" {
-		db.Conn.Find(&products, "category LIKE ?", "%"+category+"%")
-	}
-	if search != "" {
-		db.Conn.Find(&products, "name LIKE ? ", "%"+search+"%")
-	}
-	db.Conn.Preload("Category").Find(&products, "store_id =?", int(storeId))
-
 	if err := db.Conn.Find(&store, "id =?", int(storeId)).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+	var products []model.Product
+	if categoryid != "" {
+		db.Conn.Find(&products, "category_id=?", categoryid)
+	}
+	if search != "" {
+		db.Conn.Find(&products, "name LIKE ? ", "%"+search+"%")
+	}
+	db.Conn.Preload("Store").Preload("Category").Find(&products, "store_id =?", int(storeId))
 
 	var result []dto.ProductRead
 	for _, product := range products {
@@ -254,6 +253,10 @@ func ReadProductAllMyStore(c *gin.Context) {
 			},
 			Image:  product.Image,
 			Rating: product.Rating,
+			Store: dto.StoreRead{
+				ID:   product.Store.ID,
+				Name: product.Store.NameStore,
+			},
 		})
 	}
 	c.JSON(http.StatusOK, result)
