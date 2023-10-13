@@ -29,6 +29,7 @@ func CreateReview(c *gin.Context) {
 	var json ReviewBody
 	var product model.Product
 	var review model.Review
+	var user model.User
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -38,8 +39,13 @@ func CreateReview(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	query2 := db.Conn.Preload("User").Find(&review, "product_id", id)
+	query2 := db.Conn.Preload("User").Find(&review, "product_id=?", id)
 	if err := query2.Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	query3 := db.Conn.Preload("User").Find(&user, "id=?", userId)
+	if err := query3.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
