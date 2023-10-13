@@ -46,7 +46,7 @@ func GetOrderOne(c *gin.Context) {
 	id := c.Param("id")
 	var order model.Order
 	var orderItems []model.OrderItem
-	query := db.Conn.Preload("User").Preload("Store").Find(&order, id)
+	query := db.Conn.Preload("Shipment").Preload("User").Preload("Store").Find(&order, id)
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -73,6 +73,11 @@ func GetOrderOne(c *gin.Context) {
 			Zipcode:     order.User.Zipcode,
 			Tel:         order.User.Tel,
 		},
+		Shipment: dto.ShipmentRead{
+			ID:   order.ShipmentID,
+			Name: order.Shipment.Name,
+		},
+		Tracking: order.Tracking,
 	}
 	var ot []dto.OrderItemRead
 	for _, o := range orderItems {
