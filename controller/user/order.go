@@ -66,12 +66,13 @@ func CreateOrder(c *gin.Context) {
 func MyOrderAll(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	var orders []model.Order
+
 	var user model.User
 	if err := db.Conn.First(&user, userId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	query := db.Conn.Preload("Shipment").Find(&orders, "user_id=?", uint(userId))
+	query := db.Conn.Preload("Store").Preload("Shipment").Find(&orders, "user_id=?", uint(userId))
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -85,9 +86,15 @@ func MyOrderAll(c *gin.Context) {
 			ShipmentID:   uint(order.ShipmentID),
 			ShipmentName: order.Shipment.Name,
 			Tracking:     order.Tracking,
+			Store: dto.StoreRead{
+				ID:   order.StoreID,
+				Name: order.Store.NameStore,
+			},
 		})
 	}
+
 	c.JSON(http.StatusOK, result)
+
 }
 
 func MyOrderFindOne(c *gin.Context) {

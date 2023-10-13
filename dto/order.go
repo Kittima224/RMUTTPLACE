@@ -53,4 +53,5 @@ type OrderReadAll struct {
 	ShipmentID   uint
 	ShipmentName string
 	Tracking     string
+	Store        StoreRead
 }
