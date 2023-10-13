@@ -14,12 +14,12 @@ import (
 )
 
 type ProductUpdateBody struct {
-	Name       string `form:"name"`
-	Desc       string `form:"desc"`
-	CategoryID uint   `form:"categoryId"`
-	Available  int    `form:"available"`
-	Price      int    `form:"price"`
-	Weight     int    `form:"weight"`
+	Name        string `form:"name"`
+	Description string `form:"description"`
+	CategoryID  uint   `form:"categoryId"`
+	Available   int    `form:"available"`
+	Price       int    `form:"price"`
+	Weight      int    `form:"weight"`
 }
 
 func UpdateProduct(c *gin.Context) {
@@ -53,7 +53,7 @@ func UpdateProduct(c *gin.Context) {
 	}
 	db.Conn.Save(&product)
 	db.Conn.Model(&product).Updates(ProductUpdateBody{Name: json.Name,
-		Desc: json.Desc, CategoryID: json.CategoryID, Available: json.Available, Price: json.Price, Weight: json.Weight})
+		Description: json.Description, CategoryID: json.CategoryID, Available: json.Available, Price: json.Price, Weight: json.Weight})
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "update product", "product": product})
 }

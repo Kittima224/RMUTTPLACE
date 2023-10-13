@@ -121,6 +121,7 @@ func MyOrderFindOne(c *gin.Context) {
 			ID:   order.ShipmentID,
 			Name: order.Shipment.Name,
 		},
+		Tracking: order.Tracking,
 	}
 	var ot []dto.OrderItemRead
 	for _, o := range orderItems {

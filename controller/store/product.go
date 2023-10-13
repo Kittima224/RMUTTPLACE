@@ -88,12 +88,12 @@ func Create(c *gin.Context) {
 }
 
 type ProductUpdateBody struct {
-	Name       string `form:"name"`
-	Desc       string `form:"desc"`
-	CategoryID string `form:"categoryId"`
-	Available  int    `form:"available"`
-	Price      int    `form:"price"`
-	Weight     int    `form:"weight"`
+	Name        string `form:"name"`
+	Description string `form:"description"`
+	CategoryID  string `form:"categoryId"`
+	Available   int    `form:"available"`
+	Price       int    `form:"price"`
+	Weight      int    `form:"weight"`
 }
 
 func UpdateProductMystore(c *gin.Context) {
@@ -124,7 +124,7 @@ func UpdateProductMystore(c *gin.Context) {
 	db.Conn.Save(&product)
 
 	db.Conn.Model(&product).Updates(ProductUpdateBody{Name: json.Name,
-		Desc: json.Desc, CategoryID: json.CategoryID, Available: json.Available, Price: json.Price, Weight: json.Weight})
+		Description: json.Description, CategoryID: json.CategoryID, Available: json.Available, Price: json.Price, Weight: json.Weight})
 
 	query := db.Conn.Preload("Store").Preload("Category").Find(&product, id)
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
