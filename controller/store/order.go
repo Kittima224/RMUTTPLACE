@@ -130,10 +130,16 @@ func GetOrderOne(c *gin.Context) {
 			ID:   order.ShipmentID,
 			Name: order.Shipment.Name,
 		},
-		User: dto.UserReview{
-			ID:    order.User.ID,
-			Name:  order.User.UserName,
-			Image: order.User.Image,
+		User: dto.UserAddress{
+			ID:          order.User.ID,
+			Name:        order.User.UserName,
+			Image:       order.User.Image,
+			Address:     order.User.Address,
+			District:    order.User.District,
+			SubDistrict: order.User.SubDistrict,
+			Province:    order.User.Province,
+			Zipcode:     order.User.Zipcode,
+			Tel:         order.User.Tel,
 		},
 		Tracking: order.Tracking,
 	}
