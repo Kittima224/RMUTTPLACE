@@ -101,7 +101,7 @@ func MyOrderFindOne(c *gin.Context) {
 	id := c.Param("id")
 	var order model.Order
 	var orderItems []model.OrderItem
-	query := db.Conn.Preload("Store").Find(&order, "user_id=? and id=?", uint(userId), id)
+	query := db.Conn.Preload("Shipment").Preload("Store").Find(&order, "user_id=? and id=?", uint(userId), id)
 	if err := query.Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -116,6 +116,10 @@ func MyOrderFindOne(c *gin.Context) {
 		Store: dto.StoreRead{
 			ID:   order.Store.ID,
 			Name: order.Store.NameStore,
+		},
+		Shipment: dto.ShipmentRead{
+			ID:   order.ShipmentID,
+			Name: order.Shipment.Name,
 		},
 	}
 	var ot []dto.OrderItemRead
