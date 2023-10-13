@@ -137,7 +137,7 @@ func FindOneProduct(c *gin.Context) {
 func FifteenProduct(c *gin.Context) {
 	var p []int
 	var products []model.Product
-	db.Conn.Raw("SELECT id as p FROM products ORDER BY random() LIMIT 15 ").Scan(p)
+	db.Conn.Raw("SELECT id as p FROM products ORDER BY RAND() LIMIT 15").Scan(p)
 	var result []dto.ProductRead
 	db.Conn.Find(&products, p)
 	for _, product := range products {
@@ -166,7 +166,7 @@ func FifteenProduct(c *gin.Context) {
 func BestSeller(c *gin.Context) {
 	var n []int
 	var products []model.Product
-	db.Conn.Raw("SELECT ot.product_id as n FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY ot.product_id ORDER by COUNT(ot.product_id) DESC LIMIT 10").Scan(&n)
+	db.Conn.Raw("SELECT ot.product_id as n FROM order_items as ot  GROUP BY ot.product_id ORDER by COUNT(ot.product_id) DESC LIMIT 10").Scan(&n)
 	var result []dto.ProductRead
 	db.Conn.Preload("Store").Find(&products, n)
 	for _, product := range products {
@@ -197,7 +197,7 @@ func BestSeller(c *gin.Context) {
 func NotSeller(c *gin.Context) {
 	var n []int
 	var products []model.Product
-	db.Conn.Raw("SELECT ot.product_id as n FROM order_items as ot JOIN products as p on ot.product_id=p.id GROUP BY ot.product_id ORDER by COUNT(ot.product_id) ASC LIMIT 10").Scan(&n)
+	db.Conn.Raw("SELECT ot.product_id as n FROM order_items as ot  GROUP BY ot.product_id ORDER by COUNT(ot.product_id) ASC LIMIT 10").Scan(&n)
 	var result []dto.ProductRead
 	db.Conn.Preload("Store").Find(&products, n)
 	for _, product := range products {
