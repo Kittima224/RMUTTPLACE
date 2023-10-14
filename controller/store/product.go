@@ -230,13 +230,14 @@ func ReadProductAllMyStore(c *gin.Context) {
 		return
 	}
 	var products []model.Product
+	query := db.Conn.Preload("Category").Preload("Store")
 	if categoryid != "" {
-		db.Conn.Find(&products, "category_id=?", categoryid)
+		query = query.Where("category_id=?", categoryid)
 	}
 	if search != "" {
-		db.Conn.Find(&products, "name LIKE ? ", "%"+search+"%")
+		query = query.Where("name LIKE ?", "%"+search+"%")
 	}
-	db.Conn.Preload("Store").Preload("Category").Find(&products, "store_id =?", int(storeId))
+	query.Find(&products, "store_id=?", storeId)
 
 	var result []dto.ProductRead
 	for _, product := range products {
