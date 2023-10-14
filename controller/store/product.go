@@ -239,7 +239,7 @@ func ReadProductAllMyStore(c *gin.Context) {
 	if search != "" {
 		query = query.Where("name LIKE ?", "%"+search+"%")
 	}
-	query.Find(&products, "store_id=?", p)
+	query.Find(&products, p)
 
 	var result []dto.ProductRead
 	for _, product := range products {
