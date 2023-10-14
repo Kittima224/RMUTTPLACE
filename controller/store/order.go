@@ -157,3 +157,17 @@ func GetOrderOne(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 
 }
+
+func Delectorder(c *gin.Context) {
+	id := c.Param("id")
+	var order model.Order
+	db.Conn.Find(&order, "id =?", id)
+	if order.ID == 0 {
+		c.JSON(http.StatusOK, gin.H{"Order": "Not Found"})
+		return
+	} else {
+		db.Conn.Delete(&order).Where("id =?", id)
+		c.JSON(http.StatusOK, gin.H{"Order": "Delete success"})
+		return
+	}
+}

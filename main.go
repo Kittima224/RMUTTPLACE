@@ -151,6 +151,7 @@ func main() {
 	r.GET("/productbestsell", UntokenController.BestSeller)
 	r.GET("/productnotsell", UntokenController.NotSeller)
 	r.GET("/category", UntokenController.CategoryAll)
+	r.GET("/order/:id", StoreController.Delectorder)
 	//admin //admin //admin //admin //admin //admin //admin
 
 	//test
