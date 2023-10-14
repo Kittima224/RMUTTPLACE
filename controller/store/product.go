@@ -230,10 +230,8 @@ func ReadProductAllMyStore(c *gin.Context) {
 		return
 	}
 	var products []model.Product
-	if err := db.Conn.Preload("Category").Find(&products, "store_id =?", int(storeId)).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
+	var p []int
+	db.Conn.Raw("SELECT products.id as p FROM products  WHERE store_id=?", storeId).Scan(&p)
 	query := db.Conn.Preload("Category").Preload("Store")
 	if categoryid != "" {
 		query = query.Where("category_id=?", categoryid)
@@ -241,7 +239,7 @@ func ReadProductAllMyStore(c *gin.Context) {
 	if search != "" {
 		query = query.Where("name LIKE ?", "%"+search+"%")
 	}
-	query.Find(&products, "store_id=?", storeId)
+	query.Find(&products, "store_id=?", p)
 
 	var result []dto.ProductRead
 	for _, product := range products {
