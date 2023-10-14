@@ -224,11 +224,11 @@ func ReadProductAllMyStore(c *gin.Context) {
 	storeId := c.MustGet("storeId").(float64)
 	// search := c.Query("search")
 	// categoryid := c.Query("categoryid")
-	var store model.Store
-	if err := db.Conn.Find(&store, "id =?", int(storeId)).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
+	// var store model.Store
+	// if err := db.Conn.Find(&store, "id =?", int(storeId)).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	// 	c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	// 	return
+	// }
 	var products []model.Product
 	if err := db.Conn.Preload("Category").Preload("Store").Find(&products, "store_id =?", int(storeId)).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
