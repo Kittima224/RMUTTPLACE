@@ -150,6 +150,7 @@ func main() {
 	r.GET("/productfif", UntokenController.FifteenProduct)
 	r.GET("/productbestsell", UntokenController.BestSeller)
 	r.GET("/productnotsell", UntokenController.NotSeller)
+	r.GET("/category", UntokenController.CategoryAll)
 	//admin //admin //admin //admin //admin //admin //admin
 
 	//test
